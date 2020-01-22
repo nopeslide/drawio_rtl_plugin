@@ -12,7 +12,6 @@ function mxShapeRTLEntity(bounds, fill, stroke, strokewidth)
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 };
-
 /**
 * Extends mxShape.
 */
@@ -91,56 +90,42 @@ mxShapeRTLEntity.prototype.paintVertexShape = function(c, x, y, w, h)
 			break;
 	}
 	
-	
 	c.begin();
-	c.moveTo(padding,padding);
-	c.lineTo(w-padding,padding);
-	c.lineTo(w-padding,h-padding);
-	c.lineTo(padding,h-padding);
-	c.close()
+	c.rect(padding,padding,w-2*padding,h-2*padding);
 	c.fillAndStroke();
 	
 	if (drawPins) {
 		c.begin();
-		leftPinY = 0;
+		spacing = h / (leftPinNum + clockPinNum + 1)
 		for (var i = 1; i <= leftPinNum + clockPinNum; i++) {
-			leftPinY += (h) / (leftPinNum + clockPinNum) / 2;
-			c.moveTo(0,leftPinY);
-			c.lineTo(padding,leftPinY);
-			leftPinY += (h) / (leftPinNum + clockPinNum) / 2;
+			c.moveTo(0,i*spacing);
+			c.lineTo(padding,i*spacing);
 		}
-		rightPinY = 0;
+		spacing = h / (rightPinNum + 1)
 		for (var i = 1; i <= rightPinNum; i++) {
-			rightPinY += (h) / rightPinNum / 2;
-			c.moveTo(w-padding,rightPinY);
-			c.lineTo(w,rightPinY);
-			rightPinY += (h) / rightPinNum / 2;
+			c.moveTo(w,i*spacing);
+			c.lineTo(w-padding,i*spacing);
 		}
-		topPinX = 0;
+		spacing = w / (topPinNum + 1)
 		for (var i = 1; i <= topPinNum; i++) {
-			topPinX += (w) / topPinNum / 2;
-			c.moveTo(topPinX,0);
-			c.lineTo(topPinX,padding);
-			topPinX += (w) / topPinNum / 2;
+			c.moveTo(i*spacing,0);
+			c.lineTo(i*spacing,padding);
 		}
-		bottomPinX = 0;
+		spacing = w / (bottomPinNum + 1)
 		for (var i = 1; i <= bottomPinNum; i++) {
-			bottomPinX += (w) / bottomPinNum / 2;
-			c.moveTo(bottomPinX,h-padding);
-			c.lineTo(bottomPinX,h);
-			bottomPinX += (w) / bottomPinNum / 2;
+			c.moveTo(i*spacing,h);
+			c.lineTo(i*spacing,h-padding);
 		}
+		c.stroke();
+		c.end();
 	}
-	c.stroke();
-	c.end();
 
 	c.begin();
-	spacing = (h - 2*padding) / (leftPinNum + clockPinNum);
+	spacing = h / (leftPinNum + clockPinNum + 1)
 	for (var i = leftPinNum+1; i <= leftPinNum + clockPinNum; i++) {
-		leftPinY = padding + i * spacing;
-		c.moveTo(padding,leftPinY - 3*spacing/4);
-		c.lineTo(padding + spacing/4,leftPinY - spacing/2);
-		c.lineTo(padding,leftPinY- spacing/4);
+		c.moveTo(padding,i*spacing - spacing/3);
+		c.lineTo(padding + spacing/3,i*spacing);
+		c.lineTo(padding,i*spacing + spacing/3);
 	}
 	c.stroke();
 	c.end();
@@ -305,29 +290,21 @@ mxShapeRTLEntity.prototype.getConstraints = function(style, w, h)
 
 	var padding = 0;
 
-	leftPinY = padding;
+	spacing = h / (leftPinNum + clockPinNum + 1)
 	for (var i = 1; i <= leftPinNum + clockPinNum; i++) {
-		leftPinY += (h - 2*padding) / (leftPinNum + clockPinNum) / 2;
-		constr.push(new mxConnectionConstraint(new mxPoint(0, (leftPinY)/h), false, 0, 0));
-		leftPinY += (h - 2*padding) / (leftPinNum + clockPinNum) / 2;
+		constr.push(new mxConnectionConstraint(new mxPoint(0, i*spacing/h), false, 0, 0));
 	}
-	rightPinY = padding;
+	spacing = h / (rightPinNum + 1)
 	for (var i = 1; i <= rightPinNum; i++) {
-		rightPinY += (h - 2*padding) / rightPinNum / 2;
-		constr.push(new mxConnectionConstraint(new mxPoint(1, rightPinY/h), false, 0, 0));
-		rightPinY += (h - 2*padding) / rightPinNum / 2;
+		constr.push(new mxConnectionConstraint(new mxPoint(1, i*spacing/h), false, 0, 0));
 	}
-	topPinX = padding;
+	spacing = w / (topPinNum + 1)
 	for (var i = 1; i <= topPinNum; i++) {
-		topPinX += (w - 2*padding) / topPinNum / 2;
-		constr.push(new mxConnectionConstraint(new mxPoint(topPinX/w,0), false, 0, 0));
-		topPinX += (w - 2*padding) / topPinNum / 2;
+		constr.push(new mxConnectionConstraint(new mxPoint(i*spacing/w, 0), false, 0, 0));
 	}
-	bottomPinX = padding;
+	spacing = w / (bottomPinNum + 1)
 	for (var i = 1; i <= bottomPinNum; i++) {
-		bottomPinX += (w - 2*padding) / bottomPinNum / 2;
-		constr.push(new mxConnectionConstraint(new mxPoint(bottomPinX/w,1), false, 0, 0));
-		bottomPinX += (w -2 *padding) / bottomPinNum / 2;
+		constr.push(new mxConnectionConstraint(new mxPoint(i*spacing/w, 1), false, 0, 0));
 	}
 
 	return (constr);
