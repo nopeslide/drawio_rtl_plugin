@@ -171,7 +171,7 @@ mxShapeRTLEntity.prototype.paintVertexShape = function(c, x, y, w, h)
 				c.moveTo(w-padding,pinY - type_size/4);
 				c.lineTo(w-padding - type_size/4,pinY);
 				c.lineTo(w-padding,pinY + type_size/4);
-				c.text(w-5+type_size/4 -padding, pinY, 0, 0, p.name, mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, txtRot);
+				c.text(w-5-type_size/4 -padding, pinY, 0, 0, p.name, mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, txtRot);
 				break;
 			default:
 				c.text(w - 5 - padding, pinY, 0, 0, p.name, mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, txtRot);
@@ -219,7 +219,7 @@ mxShapeRTLEntity.prototype.paintVertexShape = function(c, x, y, w, h)
 				c.moveTo(pinX - type_size/4,h - padding);
 				c.lineTo(pinX, h - padding - type_size/4);
 				c.lineTo(pinX + type_size/4, h - padding);
-				c.text(pinX, h - 5 - padding - type_size/4 , 0, 0, p.name, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 90);
+				c.text(pinX, h - 5 - padding - type_size/4 , 0, 0, p.name, mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 90);
 				break;
 			default:
 				c.text(pinX, h - 5 - padding, 0, 0, p.name, mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 90);
