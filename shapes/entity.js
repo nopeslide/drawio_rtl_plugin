@@ -29,7 +29,8 @@ mxShapeRTLEntity.prototype.customProperties = [
 			{val:'fifo', dispName:'Fifo / Queue'},
 			{val:'ram', dispName:'RAM'},
 			{val:'stack', dispName:'Stack'},
-			{val:'ringbuffer', dispName:'Ringbuffer'}
+			{val:'ringbuffer', dispName:'Ringbuffer'},
+			{val:'tree', dispName:'Tree'}
 		]},
 	{name: 'type_loc', dispName: 'Type Symbol Location', type: 'enum', defVal:'topLeft',
 		enumList:[
@@ -123,9 +124,9 @@ mxShapeRTLEntity.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.begin();
 	spacing = h / (leftPinNum + clockPinNum + 1)
 	for (var i = leftPinNum+1; i <= leftPinNum + clockPinNum; i++) {
-		c.moveTo(padding,i*spacing - spacing/3);
-		c.lineTo(padding + spacing/3,i*spacing);
-		c.lineTo(padding,i*spacing + spacing/3);
+		c.moveTo(padding,i*spacing - type_size/4);
+		c.lineTo(padding + type_size/4,i*spacing);
+		c.lineTo(padding,i*spacing + type_size/4);
 	}
 	c.stroke();
 	c.end();
@@ -163,6 +164,7 @@ mxShapeRTLEntity.prototype.paintVertexShape = function(c, x, y, w, h)
 		case 'ram':        symbolRTLRAM(c,offsetX,offsetY,type_size);        break;
 		case 'stack':      symbolRTLStack(c,offsetX,offsetY,type_size);      break;
 		case 'ringbuffer': symbolRTLRingBuffer(c,offsetX,offsetY,type_size); break;
+		case 'tree':       symbolRTLTree(c,offsetX,offsetY,type_size);       break;
 		case 'none':
 		default:
 			break;
@@ -272,6 +274,45 @@ function symbolRTLRingBuffer(c,x,y,size) {
 	c.rect(x+7*width/8,y+4*size/16,width,height);
 	c.fillAndStroke();
 	c.rect(x,y+5*size/16,width,height);
+	c.fillAndStroke();
+	c.end();
+}
+
+function symbolRTLTree(c,x,y,size) {
+	var r = size/8;
+	var d = size/5;
+	y -= 1.5*d;
+	x += r/2;
+	y += r/2;
+	c.begin()
+	c.moveTo(x,y);
+	c.lineTo(x+d,y+d);
+	c.moveTo(x,y);
+	c.lineTo(x-d,y+d);
+	c.moveTo(x-d,y+d);
+	c.lineTo(x-2*d,y+2*d);
+	c.moveTo(x-d,y+d);
+	c.lineTo(x,y+2*d);
+	c.moveTo(x,y+2*d);
+	c.lineTo(x-d,y+3*d);
+	c.moveTo(x,y+2*d);
+	c.lineTo(x+d,y+3*d);
+	c.stroke()
+	x -= r/2;
+	y -= r/2;
+	c.ellipse(x,y,r,r);
+	c.fillAndStroke();
+	c.ellipse(x+d,y+d,r,r);
+	c.fillAndStroke();
+	c.ellipse(x-d,y+d,r,r);
+	c.fillAndStroke();
+	c.ellipse(x-2*d,y+2*d,r,r);
+	c.fillAndStroke();
+	c.ellipse(x,y+2*d,r,r);
+	c.fillAndStroke();
+	c.ellipse(x-d,y+3*d,r,r);
+	c.fillAndStroke();
+	c.ellipse(x+d,y+3*d,r,r);
 	c.fillAndStroke();
 	c.end();
 }
