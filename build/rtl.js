@@ -58,9 +58,11 @@ mxShapeRTLEntity.prototype.customProperties = [
 	{name: 'type_loc', dispName: 'Type Symbol Location', type: 'enum', defVal:'topLeft',
 		enumList:[
 			{val:'topLeft', dispName:'Top Left'},
+			{val:'top', dispName:'Top Center'},
 			{val:'topRight', dispName:'Top Right'},
 			{val:'center', dispName:'Center'},
 			{val:'bottomLeft', dispName:'Bottom Left'},
+			{val:'bottom', dispName:'Bottom Center'},
 			{val:'bottomRight', dispName:'Bottom Right'}
 		]},
 	{name: 'type_size', dispName: 'Symbol size', type: 'int', min:1, max:1000, defVal:30},
@@ -157,6 +159,10 @@ mxShapeRTLEntity.prototype.paintVertexShape = function(c, x, y, w, h)
 	var offsetX = 0;
 	var offsetY = 0;
 	switch(type_loc) {
+		case 'top':
+			offsetX = w/2;
+			offsetY = 5 + type_size/2 + padding;
+			break;
 		case 'topLeft':
 			offsetX = 5 + type_size/2 + padding;
 			offsetY = 5 + type_size/2 + padding;
@@ -171,6 +177,10 @@ mxShapeRTLEntity.prototype.paintVertexShape = function(c, x, y, w, h)
 			break;
 		case 'bottomLeft':
 			offsetX = 5 + type_size/2 + padding;
+			offsetY = h - 5 - type_size/2 - padding;
+			break;
+		case 'bottom':
+			offsetX = w/2;
 			offsetY = h - 5 - type_size/2 - padding;
 			break;
 		case 'bottomRight':
