@@ -30,7 +30,8 @@ mxShapeRTLEntity.prototype.customProperties = [
 			{val:'ram', dispName:'RAM'},
 			{val:'stack', dispName:'Stack'},
 			{val:'ringbuffer', dispName:'Ringbuffer'},
-			{val:'tree', dispName:'Tree'}
+			{val:'tree', dispName:'Tree'},
+			{val:'fsm', dispName:'FSM'}
 		]},
 	{name: 'type_loc', dispName: 'Type Symbol Location', type: 'enum', defVal:'topLeft',
 		enumList:[
@@ -175,6 +176,7 @@ mxShapeRTLEntity.prototype.paintVertexShape = function(c, x, y, w, h)
 		case 'stack':      symbolRTLStack(c,offsetX,offsetY,type_size);      break;
 		case 'ringbuffer': symbolRTLRingBuffer(c,offsetX,offsetY,type_size); break;
 		case 'tree':       symbolRTLTree(c,offsetX,offsetY,type_size);       break;
+		case 'fsm':        symbolRTLFSM(c,offsetX,offsetY,type_size);        break;
 		case 'none':
 		default:
 			break;
@@ -323,6 +325,57 @@ function symbolRTLTree(c,x,y,size) {
 	c.ellipse(x-d,y+3*d,r,r);
 	c.fillAndStroke();
 	c.ellipse(x+d,y+3*d,r,r);
+	c.fillAndStroke();
+	c.end();
+}
+
+function symbolRTLFSM(c,x,y,size) {
+	var r = size/6;
+	var d = size/2.5;
+	y -= d/2;
+	x += r/2;
+	y += r/2;
+	c.begin()
+	c.moveTo(x-d,y);
+	c.lineTo(x+d,y);
+	c.end();
+	c.stroke();
+	c.begin();
+	c.moveTo(x+d-r/2,y);
+	c.lineTo(x+d-r,y-r/2);
+	c.lineTo(x+d-r,y+r/2);
+	c.close()
+	c.end();
+	c.fillAndStroke();
+	c.begin();
+	c.moveTo(x+d,y);
+	c.lineTo(x,y+d);
+	c.end();
+	c.stroke();
+	c.begin();
+	c.moveTo(x+r/2/1.4,y+d-r/2/1.4);
+	c.lineTo(x+r/2/1.4,y+d-r/2/1.4-r/2*1.4);
+	c.lineTo(x+r/2/1.4+r/2*1.4,y+d-r/2/1.4);
+	c.close()
+	c.fillAndStroke();
+	c.begin()
+	c.moveTo(x,y+d);
+	c.lineTo(x-d,y);
+	c.end();
+	c.stroke()
+	c.begin();
+	c.moveTo(x-d+r/2/1.4,y+r/2/1.4);
+	c.lineTo(x-d+r/2/1.4,y+r/2/1.4+r/2*1.4);
+	c.lineTo(x-d+r/2/1.4+r/2*1.4,y+r/2/1.4);
+	c.close()
+	c.fillAndStroke();
+	x -= r/2;
+	y -= r/2;
+	c.ellipse(x+d,y,r,r);
+	c.fillAndStroke();
+	c.ellipse(x-d,y,r,r);
+	c.fillAndStroke();
+	c.ellipse(x,y+d,r,r);
 	c.fillAndStroke();
 	c.end();
 }
