@@ -2,6 +2,7 @@
 
 var mux = require("./shapes/mux.js")
 var entity = require("./shapes/entity.js")
+var bus = require("./shapes/bus.js")
 
 // export ui for debugging
 Draw.loadPlugin(function(ui){window.ui=ui;});
@@ -15,12 +16,70 @@ Draw.loadPlugin(function(ui) {
 Sidebar.prototype.addRTLPalette = function() {
   this.addPaletteFunctions('rtl','RTL', true, [
     this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;html=1;strokeWidth=1;shape=mxgraph.rtl.abstract.mux;',  80, 120, 'Mux', 'Mux', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'mux', 'rtl ').join(' ')),
-    this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;html=1;strokeWidth=1;shape=mxgraph.rtl.abstract.entity;',  80, 120, 'Entity', 'Entity', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'entity', 'rtl ').join(' '))
-    ]);
+    this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;html=1;strokeWidth=1;shape=mxgraph.rtl.abstract.entity;',  80, 120, 'Entity', 'Entity', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'entity', 'rtl ').join(' ')),
+    this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;html=1;strokeWidth=2;shape=mxgraph.rtl.abstract.bus;labelPosition=center;verticalLabelPosition=top;verticalAlign=bottom;',  10, 80, 'Bus', 'Bus', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'bus', 'rtl ').join(' '))
+  ]);
 }
   
 
-},{"./shapes/entity.js":2,"./shapes/mux.js":3}],2:[function(require,module,exports){
+},{"./shapes/bus.js":2,"./shapes/entity.js":3,"./shapes/mux.js":4}],2:[function(require,module,exports){
+
+	// PartialRectangleShape
+function mxShapeRTLBus(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+mxUtils.extend(mxShapeRTLBus, mxShape);
+
+mxShapeRTLBus.prototype.cst = {
+	SHAPE_BUS : 'mxgraph.rtl.abstract.bus'
+};
+mxCellRenderer.registerShape(mxShapeRTLBus.prototype.cst.SHAPE_BUS, mxShapeRTLBus);
+
+mxShapeRTLBus.prototype.customProperties = [
+	{name: 'left', dispName: 'Ports left', type: 'int', min:1, max:8, defVal:2},
+	{name: 'right', dispName: 'Ports right', type: 'int', min:1, max:8, defVal:2}
+];
+
+
+mxShapeRTLBus.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x,y);
+	c.begin();
+	c.moveTo(0,0);
+	c.lineTo(0,h);
+	c.moveTo(w,0);
+	c.lineTo(w,h);
+	c.end();
+	c.stroke();
+};
+
+mxShapeRTLBus.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+	var left = parseInt(mxUtils.getValue(this.style, 'left', '2'));
+	var right = parseInt(mxUtils.getValue(this.style, 'right', '2'));
+	
+	spacing = h / (left+1);	
+	for (var i = 1; i <= left; i++)
+	{
+		constr.push(new mxConnectionConstraint(new mxPoint(0, i*spacing/h), false, null, 0, 0));
+	}
+	spacing = h / (right+1);	
+	for (var i = 1; i <= right; i++)
+	{
+		constr.push(new mxConnectionConstraint(new mxPoint(1, i*spacing/h), false, null, 0, 0));
+	}
+
+	return (constr);
+}
+
+},{}],3:[function(require,module,exports){
 //**********************************************************************************************************************************************************
 //Entity
 //**********************************************************************************************************************************************************
@@ -86,12 +145,60 @@ function parsePinString( string ) {
 	if (String(string).indexOf(",") != -1 || isNaN(parseInt(string))) {
 		string.split(",").forEach(function(kv){
 			var tmp = kv.split(":");
-			res.push({name:tmp[0],type:tmp[1]});
+			var pin = { name:tmp[0], type:tmp[1] };
+			res.push(pin);
 		});
 	} else {
 		for (var i = 0; i < parseInt(string); i++) {
-			res.push({name:"",type:undefined});
+			res.push({name:"", type:undefined});
 		}
+	}
+	return res;
+}
+/*
+function parsePinString( s, w, h ) {
+	var res = [];
+	if (String(string).indexOf(",") != -1 || isNaN(parseInt(string))) {
+		string.split(",").forEach(function(kv){
+			var tmp = kv.split(":");
+			var p = new mxPoint();
+			p.name = tmp[0];
+			for( var i = 1; i < tmp.length; i++ ) {
+				p[tmp[i]] = true;
+			}
+			res.push(p);
+		});
+	} else {
+		for (var i = 0; i < parseInt(string); i++) {
+			var p = new mxPoint();
+			res.push();
+		}
+	}
+	return res;
+}
+*/
+function createPins(s, w, h) {
+	var res = [];
+	left = parsePinString(mxUtils.getValue(s, 'left', '3'))
+	top = parsePinString(mxUtils.getValue(s, 'top', '1'))
+	right = parsePinString(mxUtils.getValue(s, 'right', '1'))
+	bottom = parsePinString(mxUtils.getValue(s, 'bottom', '3'))
+	
+	left_spacing = h / (left.length + 1);
+	top_spacing = w / (top.length + 1);
+	right_spacing = h / (right.length + 1);
+	bottom_spacing = w / (bottom.length + 1);
+	for(var i=0; i < left.length; i++) {
+		var p = new mxPoint(0,(i+1)*left_spacing);
+	}
+	for(var i=0; i < top.length; i++) {
+		res.push(new mxPoint((i+1)*top_spacing,0));
+	}
+	for(var i=0; i < right.length; i++) {
+		res.push(new mxPoint(w,(i+1)*right_spacing));
+	}
+	for(var i=0; i < bottom.length; i++) {
+		res.push(new mxPoint((i+1)*bottom_spacing,h));
 	}
 	return res;
 }
@@ -101,7 +208,8 @@ mxShapeRTLEntity.prototype.paintVertexShape = function(c, x, y, w, h)
 	window.c = c;
 	window.t = this;
 	c.translate(x, y);
-	var leftPins = parsePinString(mxUtils.getValue(this.style, 'left', '3'));
+//	var pins = createPinsFromString(this, c, x, y, w, h);
+	var leftPins = parsePinString(mxUtils.getValue(this.style, 'left', '1'));
 	var rightPins = parsePinString(mxUtils.getValue(this.style, 'right', '1'));
 	var topPins = parsePinString(mxUtils.getValue(this.style, 'top', '1'));
 	var bottomPins = parsePinString(mxUtils.getValue(this.style, 'bottom', '3'));
@@ -137,101 +245,33 @@ mxShapeRTLEntity.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.rect(padding,padding,w-2*padding,h-2*padding);
 	c.fillAndStroke();
 
-	c.begin();
 	spacing = h / (leftPins.length + 1);
 	pinY = spacing;
 	leftPins.forEach(function(p) {
-		switch(p.type) {
-			case "clk":
-			case "clock":
-				c.moveTo(padding,pinY - type_size/4);
-				c.lineTo(padding + type_size/4,pinY);
-				c.lineTo(padding,pinY + type_size/4);
-				c.text(5+type_size/4 +padding, pinY, 0, 0, p.name, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, txtRot);
-				break;
-			default:
-				c.text(5+padding, pinY, 0, 0, p.name, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, txtRot);
-		}
-		if (drawPins) {
-			c.moveTo(0,pinY);
-			c.lineTo(padding,pinY);
-		}
+		drawPin(p,0,pinY,0,padding,type_size,drawPins);
 		pinY += spacing;
 	});
-	c.end();
-	c.stroke();
 	
-	c.begin();
 	spacing = h / (rightPins.length + 1);
 	pinY = spacing;
 	rightPins.forEach(function(p) {
-		switch(p.type) {
-			case "clk":
-			case "clock":
-				c.moveTo(w-padding,pinY - type_size/4);
-				c.lineTo(w-padding - type_size/4,pinY);
-				c.lineTo(w-padding,pinY + type_size/4);
-				c.text(w-5-type_size/4 -padding, pinY, 0, 0, p.name, mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, txtRot);
-				break;
-			default:
-				c.text(w - 5 - padding, pinY, 0, 0, p.name, mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, txtRot);
-		}
-		if (drawPins) {
-			c.moveTo(w,pinY);
-			c.lineTo(w-padding,pinY);
-		}
+		drawPin(p,w,pinY,180,padding,type_size,drawPins);
 		pinY += spacing;
 	});
-	c.end();
-	c.stroke();
 	
-	c.begin();
 	spacing = w / (topPins.length + 1);
 	pinX = spacing;
 	topPins.forEach(function(p) {
-		switch(p.type) {
-			case "clk":
-			case "clock":
-				c.moveTo(pinX - type_size/4, padding);
-				c.lineTo(pinX, padding + type_size/4);
-				c.lineTo(pinX + type_size/4, padding);
-				c.text(pinX, 5 + padding + type_size/4 , 0, 0, p.name, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 90);
-				break;
-			default:
-				c.text(pinX, 5 + padding, 0, 0, p.name, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 90);
-		}
-		if (drawPins) {
-			c.moveTo(pinX,0);
-			c.lineTo(pinX,padding);
-		}
+		drawPin(p,pinX,0,90,padding,type_size,drawPins);
 		pinX += spacing;
 	});
-	c.end();
-	c.stroke();
 	
-	c.begin();
 	spacing = w / (bottomPins.length + 1);
 	pinX = spacing;
 	bottomPins.forEach(function(p) {
-		switch(p.type) {
-			case "clk":
-			case "clock":
-				c.moveTo(pinX - type_size/4,h - padding);
-				c.lineTo(pinX, h - padding - type_size/4);
-				c.lineTo(pinX + type_size/4, h - padding);
-				c.text(pinX, h - 5 - padding - type_size/4 , 0, 0, p.name, mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 90);
-				break;
-			default:
-				c.text(pinX, h - 5 - padding, 0, 0, p.name, mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 90);
-		}
-		if (drawPins) {
-			c.moveTo(pinX,h);
-			c.lineTo(pinX,h - padding);
-		}
+		drawPin(p,pinX,h,270,padding,type_size,drawPins);
 		pinX += spacing;
 	});
-	c.end();
-	c.stroke();
 
 	var offsetX = 0;
 	var offsetY = 0;
@@ -281,6 +321,99 @@ mxShapeRTLEntity.prototype.paintVertexShape = function(c, x, y, w, h)
 			break;
 	};
 };
+	
+function drawPin(p,x,y,rot,padding,size,drawPins) {
+	c.translate(x,y);
+	c.rotate(rot,0,0,0,0);
+	var txtOffset = 0;
+	switch(p.type) {
+		case "no":
+		case "np":
+		case "nopin":
+			break;
+		case "nc":
+			c.begin();
+			if (drawPins) {
+				c.moveTo(0,0);
+				c.lineTo(padding,0);
+				c.moveTo(0-padding/2,0-padding/2);
+				c.lineTo(0+padding/2,0+padding/2);
+				c.moveTo(0-padding/2,0+padding/2);
+				c.lineTo(0+padding/2,0-padding/2);
+				c.stroke();
+			}
+			c.end();
+			break;
+		case "n":
+		case "neg":
+		case "not":
+			c.begin();
+			if (drawPins) {
+				c.moveTo(0,0);
+				c.lineTo(padding,0);
+				c.stroke();
+				c.ellipse(padding/2,0-padding/4,padding/2,padding/2);
+				c.fillAndStroke();
+			}
+			c.end();
+			break;
+		case "clk":
+		case "clock":
+			c.begin();
+			c.moveTo(padding,0 - size/4);
+			c.lineTo(padding + size/4,0);
+			c.lineTo(padding,0 + size/4);
+			if (drawPins) {
+				c.moveTo(0,0);
+				c.lineTo(padding,0);
+			}
+			c.stroke();
+			c.end();
+			txtOffset = size/4;
+			break;
+		case "nclk":
+		case "nclock":
+			c.begin();
+			c.moveTo(padding,0 - size/4);
+			c.lineTo(padding + size/4,0);
+			c.lineTo(padding,0 + size/4);
+			if (drawPins) {
+				c.moveTo(0,0);
+				c.lineTo(padding,0);
+				c.stroke();
+				c.ellipse(padding/2,0-padding/4,padding/2,padding/2);
+			}
+			c.fillAndStroke();
+			c.end();
+			txtOffset = size/4;
+			break;
+		default:
+			c.begin();
+			if (drawPins) {
+				c.moveTo(0,0);
+				c.lineTo(padding,0);
+				c.stroke();
+			}
+			c.end();
+	}
+	switch(rot) {
+		case 0:
+			c.text(5+padding + txtOffset, 0, 0, 0, p.name, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			break;
+		case 180:
+			c.text(5+padding + txtOffset, 0, 0, 0, p.name, mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 180);
+			break;
+		case 90:
+			c.text(5+padding + txtOffset, 0, 0, 0, p.name, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			break;
+		case 270:
+			c.text(5+padding + txtOffset, 0, 0, 0, p.name, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			break;
+	}
+	c.rotate(-rot,0,0,0,0);	
+	c.translate(-x,-y);
+	c.end();
+}
 
 function symbolRTLShiftReg(c,x,y,size) {
 	var height = 3*size/5;
@@ -519,7 +652,7 @@ mxShapeRTLEntity.prototype.getConstraints = function(style, w, h)
 	return (constr);
 }
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 //**********************************************************************************************************************************************************
 //Mux
 //**********************************************************************************************************************************************************
