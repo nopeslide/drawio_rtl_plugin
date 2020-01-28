@@ -22,6 +22,14 @@ mxShapeRTLEntity.prototype.cst = {
 };
 
 mxShapeRTLEntity.prototype.customProperties = [
+	{name: 'kind', dispName: 'Type', type: 'enum', defVal:'sequential',
+		enumList:[
+			{val:'sequential', dispName:'Seq. Logic'},
+			{val:'combinational', dispName:'Comb. Logic'},
+			{val:'mux', dispName:'Mux'},
+			{val:'demux', dispName:'Demux'},
+			{val:'crossbar', dispName:'Crossbar'}
+		]},
 	{name: 'type', dispName: 'Type Symbol', type: 'enum', defVal:'none',
 		enumList:[
 			{val:'none', dispName:'None'},
@@ -44,11 +52,10 @@ mxShapeRTLEntity.prototype.customProperties = [
 			{val:'bottomRight', dispName:'Bottom Right'}
 		]},
 	{name: 'type_size', dispName: 'Symbol size', type: 'int', min:1, max:1000, defVal:30},
-	//{name: 'left', dispName: 'Ports left', type: 'int', min:1, max:32, defVal:2},
-	{name: 'left', dispName: 'Ports left', type: 'string', defVal:"2"},
+	{name: 'left', dispName: 'Ports left', type: 'string', defVal:"3"},
 	{name: 'right', dispName: 'Ports right', type: 'string', defVal:"2"},
-	{name: 'top', dispName: 'Ports top', type: 'string', defVal:"2"},
-	{name: 'bottom', dispName: 'Ports bottom', type: 'string', defVal:"2"},
+	{name: 'top', dispName: 'Ports top', type: 'string', defVal:"1"},
+	{name: 'bottom', dispName: 'Ports bottom', type: 'string', defVal:"1"},
 	{name: 'drawPins', dispName: 'Draw Pins', type: 'bool', defVal:false}
 ];
 
@@ -73,34 +80,13 @@ function parsePinString( string ) {
 	}
 	return res;
 }
-/*
-function parsePinString( s, w, h ) {
-	var res = [];
-	if (String(string).indexOf(",") != -1 || isNaN(parseInt(string))) {
-		string.split(",").forEach(function(kv){
-			var tmp = kv.split(":");
-			var p = new mxPoint();
-			p.name = tmp[0];
-			for( var i = 1; i < tmp.length; i++ ) {
-				p[tmp[i]] = true;
-			}
-			res.push(p);
-		});
-	} else {
-		for (var i = 0; i < parseInt(string); i++) {
-			var p = new mxPoint();
-			res.push();
-		}
-	}
-	return res;
-}
-*/
+
 function createPins(s, w, h) {
 	var res = [];
 	left = parsePinString(mxUtils.getValue(s, 'left', '3'))
 	top = parsePinString(mxUtils.getValue(s, 'top', '1'))
-	right = parsePinString(mxUtils.getValue(s, 'right', '1'))
-	bottom = parsePinString(mxUtils.getValue(s, 'bottom', '3'))
+	right = parsePinString(mxUtils.getValue(s, 'right', '2'))
+	bottom = parsePinString(mxUtils.getValue(s, 'bottom', '1'))
 	
 	left_spacing = h / (left.length + 1);
 	top_spacing = w / (top.length + 1);
@@ -126,12 +112,12 @@ mxShapeRTLEntity.prototype.paintVertexShape = function(c, x, y, w, h)
 	window.c = c;
 	window.t = this;
 	c.translate(x, y);
-//	var pins = createPinsFromString(this, c, x, y, w, h);
-	var leftPins = parsePinString(mxUtils.getValue(this.style, 'left', '1'));
-	var rightPins = parsePinString(mxUtils.getValue(this.style, 'right', '1'));
+	var leftPins = parsePinString(mxUtils.getValue(this.style, 'left', '3'));
+	var rightPins = parsePinString(mxUtils.getValue(this.style, 'right', '2'));
 	var topPins = parsePinString(mxUtils.getValue(this.style, 'top', '1'));
-	var bottomPins = parsePinString(mxUtils.getValue(this.style, 'bottom', '3'));
+	var bottomPins = parsePinString(mxUtils.getValue(this.style, 'bottom', '1'));
 	var type = mxUtils.getValue(this.style, 'type', 'none');
+	var kind = mxUtils.getValue(this.style, 'kind', 'sequential');
 	var type_loc = mxUtils.getValue(this.style, 'type_loc', 'topLeft');
 	var type_size = mxUtils.getValue(this.style, 'type_size', '30');
 	var drawPins = mxUtils.getValue(this.style, 'drawPins', false);
@@ -159,38 +145,115 @@ mxShapeRTLEntity.prototype.paintVertexShape = function(c, x, y, w, h)
 			break;
 	}
 	
-	c.begin();
-	c.rect(padding,padding,w-2*padding,h-2*padding);
-	c.fillAndStroke();
+	calcTopY    = function(x) { return padding; }
+	calcBottomY = function(x) { return h-padding; }
+	calcLeftX   = function(y) { return padding; }
+	calcRightX  = function(y) { return w-padding; }
+	
+	switch(kind) {
+		case 'mux':
+			calcTopY    = function(x) { return   (x-padding)*(0.2*h-padding)/(w-2*padding)+padding }
+			calcBottomY = function(x) { return h-calcTopY(x) }
+			break;
+		case 'combinational':
+			calcTopY    = function(x) { return h/2-((h-2*padding)/2)/((w-2*padding)/2)*Math.sqrt(Math.pow((w-2*padding)/2,2)-Math.pow(x-w/2,2)); }
+			calcBottomY = function(x) { return h-calcTopY(x); }
+			calcLeftX   = function(y) { return w/2-((w-2*padding)/2)/((h-2*padding)/2)*Math.sqrt(Math.pow((h-2*padding)/2,2)-Math.pow(y-h/2,2)); }
+			calcRightX  = function(y) { return w-calcLeftX(y); }
+			break;
+		case 'demux':
+			calcTopY    = function(x) { return   (x-padding)*(-(0.2*h-padding)/(w-2*padding))+0.2*h }
+			calcBottomY = function(x) { return h-calcTopY(x) }
+			break;
+		case 'crossbar':
+			calcTopY    = function(x) { if (x < w/2) {
+					return   (x-padding)*(0.4*h-padding)/(w-2*padding)+padding
+				} else {
+					return   (x-padding)*(-(0.4*h-padding)/(w-2*padding))+0.4*h
+				}
+			}
+			calcBottomY = function(x) { return h-calcTopY(x) }
+			break;
+		case 'sequential':
+		default:
+			break;
+	}
+	
+	switch(kind) {
+		case 'mux':
+			c.begin();
+			c.moveTo(padding,calcTopY(padding));
+			c.lineTo(w-padding,calcTopY(w-padding));
+			c.lineTo(w-padding,calcBottomY(w-padding));
+			c.lineTo(padding,calcBottomY(padding));
+			c.close();
+			c.fillAndStroke();
+			break;
+		case 'combinational':
+			c.ellipse(padding,padding,w-2*padding,h-2*padding);
+			c.fillAndStroke();
+			break;
+		case 'demux':
+			c.begin();
+			c.moveTo(padding,calcTopY(padding));
+			c.lineTo(w-padding,calcTopY(w-padding));
+			c.lineTo(w-padding,calcBottomY(w-padding));
+			c.lineTo(padding,calcBottomY(padding));
+			c.close();
+			c.fillAndStroke();
+			break;
+		case 'crossbar':
+			c.begin();
+			c.moveTo(padding,calcTopY(padding));
+			c.lineTo(w/2,calcTopY(w/2));
+			c.lineTo(w-padding,calcTopY(w-padding));
+			c.lineTo(w-padding,calcBottomY(w-padding));
+			c.lineTo(w/2,calcBottomY(w/2));
+			c.lineTo(padding,calcBottomY(padding));
+			c.close();
+			c.fillAndStroke();
+			c.begin();
+			c.moveTo(w/2,calcTopY(w/2));
+			c.lineTo(w/2,calcBottomY(w/2));
+			c.end();
+			c.stroke()
+			break;
+		case 'sequential':
+		default:
+			c.begin();
+			c.rect(padding,padding,w-2*padding,h-2*padding);
+			c.fillAndStroke();
+			break;
+	}
 
 	spacing = h / (leftPins.length + 1);
 	pinY = spacing;
 	leftPins.forEach(function(p) {
-		drawPin(p,0,pinY,0,padding,type_size,drawPins);
+		drawPin(p,0,pinY,0,calcLeftX(pinY),type_size,drawPins);
 		pinY += spacing;
 	});
 	
 	spacing = h / (rightPins.length + 1);
 	pinY = spacing;
 	rightPins.forEach(function(p) {
-		drawPin(p,w,pinY,180,padding,type_size,drawPins);
+		drawPin(p,w,pinY,180,w-calcRightX(pinY),type_size,drawPins);
 		pinY += spacing;
 	});
 	
 	spacing = w / (topPins.length + 1);
 	pinX = spacing;
 	topPins.forEach(function(p) {
-		drawPin(p,pinX,0,90,padding,type_size,drawPins);
-		pinX += spacing;
-	});
-	
-	spacing = w / (bottomPins.length + 1);
-	pinX = spacing;
-	bottomPins.forEach(function(p) {
-		drawPin(p,pinX,h,270,padding,type_size,drawPins);
+		drawPin(p,pinX,0,90,calcTopY(pinX),type_size,drawPins);
 		pinX += spacing;
 	});
 
+	spacing = w / (bottomPins.length + 1);
+	pinX = spacing;
+	bottomPins.forEach(function(p) {
+		drawPin(p,pinX,h,270,h-calcBottomY(pinX),type_size,drawPins);
+		pinX += spacing;
+	});
+	
 	var offsetX = 0;
 	var offsetY = 0;
 	switch(type_loc) {
@@ -254,10 +317,10 @@ function drawPin(p,x,y,rot,padding,size,drawPins) {
 			if (drawPins) {
 				c.moveTo(0,0);
 				c.lineTo(padding,0);
-				c.moveTo(0-padding/2,0-padding/2);
-				c.lineTo(0+padding/2,0+padding/2);
-				c.moveTo(0-padding/2,0+padding/2);
-				c.lineTo(0+padding/2,0-padding/2);
+				c.moveTo(0-size/4,0-size/4);
+				c.lineTo(0+size/4,0+size/4);
+				c.moveTo(0-size/4,0+size/4);
+				c.lineTo(0+size/4,0-size/4);
 				c.stroke();
 			}
 			c.end();
@@ -270,7 +333,7 @@ function drawPin(p,x,y,rot,padding,size,drawPins) {
 				c.moveTo(0,0);
 				c.lineTo(padding,0);
 				c.stroke();
-				c.ellipse(padding/2,0-padding/4,padding/2,padding/2);
+				c.ellipse(padding-size/4,-size/8,size/4,size/4);
 				c.fillAndStroke();
 			}
 			c.end();
@@ -536,9 +599,9 @@ mxShapeRTLEntity.prototype.getConstraints = function(style, w, h)
 {
 	var constr = [];
 	var leftPins = parsePinString(mxUtils.getValue(this.style, 'left', '3'));
-	var rightPins = parsePinString(mxUtils.getValue(this.style, 'right', '1'));
+	var rightPins = parsePinString(mxUtils.getValue(this.style, 'right', '2'));
 	var topPins = parsePinString(mxUtils.getValue(this.style, 'top', '1'));
-	var bottomPins = parsePinString(mxUtils.getValue(this.style, 'bottom', '3'));
+	var bottomPins = parsePinString(mxUtils.getValue(this.style, 'bottom', '1'));
 	var dir = mxUtils.getValue(this.style, 'direction', 'east');
 
 	var padding = 0;
