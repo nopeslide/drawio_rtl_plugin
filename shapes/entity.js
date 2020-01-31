@@ -75,39 +75,63 @@ function parsePinString(string) {
 	if (String(string).indexOf(",") != -1 || isNaN(parseInt(string))) {
 		string.split(",").forEach(function (kv) {
 			var tmp = kv.split(":");
-			var pin = { name: tmp[0], type: tmp[1] };
+			var pin = { name: tmp[0]};
+			pin.draw  = true;
+			pin.clock = false;
+			pin.neg   = false;
+			pin.in    = false;
+			pin.out   = false;
+			pin.inout = false;
+			pin.notConnected = false;
+			for( var i = 1; i < tmp.length; i++) {
+				switch(tmp[i]) {
+					case "no":
+					case "np":
+					case "nopin":
+						pin.draw = false;
+						break;
+					case "nc":
+						pin.notConnected = true;
+						break;
+					case "n":
+					case "neg":
+					case "not":
+						pin.neg = true;
+						break;
+					case "c":
+					case "clk":
+					case "clock":
+						pin.clock = true;
+						break;
+					case "nclk":
+					case "nclock":
+						pin.clock = true;
+						pin.neg = true;
+						break;
+					case "i":
+					case "in":
+						pin.in  = true;
+						pin.out = false;
+						break;
+					case "o":
+					case "out":
+						pin.in  = false;
+						pin.out = true;
+						break;
+					case "io":
+					case "inout":
+						pin.in  = false;
+						pin.out = false;
+						pin.inout = true;
+						break;
+				}
+			}
 			res.push(pin);
 		});
 	} else {
 		for (var i = 0; i < parseInt(string); i++) {
-			res.push({ name: "", type: undefined });
+			res.push({ name: "", draw:true });
 		}
-	}
-	return res;
-}
-
-function createPins(s, w, h) {
-	var res = [];
-	left = parsePinString(mxUtils.getValue(s, 'left', '3'))
-	top = parsePinString(mxUtils.getValue(s, 'top', '1'))
-	right = parsePinString(mxUtils.getValue(s, 'right', '2'))
-	bottom = parsePinString(mxUtils.getValue(s, 'bottom', '1'))
-
-	left_spacing = h / (left.length + 1);
-	top_spacing = w / (top.length + 1);
-	right_spacing = h / (right.length + 1);
-	bottom_spacing = w / (bottom.length + 1);
-	for (var i = 0; i < left.length; i++) {
-		var p = new mxPoint(0, (i + 1) * left_spacing);
-	}
-	for (var i = 0; i < top.length; i++) {
-		res.push(new mxPoint((i + 1) * top_spacing, 0));
-	}
-	for (var i = 0; i < right.length; i++) {
-		res.push(new mxPoint(w, (i + 1) * right_spacing));
-	}
-	for (var i = 0; i < bottom.length; i++) {
-		res.push(new mxPoint((i + 1) * bottom_spacing, h));
 	}
 	return res;
 }
@@ -313,98 +337,88 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 	};
 };
 
-function drawPin(p, x, y, rot, padding, size, drawPins, fontFamily) {
+function drawPin(pin, x, y, rot, padding, size, drawPins, fontFamily) {
 	c.translate(x, y);
 	c.rotate(rot, 0, 0, 0, 0);
 	var txtOffset = 0;
-	switch (p.type) {
-		case "no":
-		case "np":
-		case "nopin":
-			break;
-		case "nc":
-			c.begin();
-			if (drawPins) {
-				c.moveTo(0, 0);
-				c.lineTo(padding, 0);
-				c.moveTo(0 - size / 4, 0 - size / 4);
-				c.lineTo(0 + size / 4, 0 + size / 4);
-				c.moveTo(0 - size / 4, 0 + size / 4);
-				c.lineTo(0 + size / 4, 0 - size / 4);
-				c.stroke();
-			}
-			c.end();
-			break;
-		case "n":
-		case "neg":
-		case "not":
-			c.begin();
-			if (drawPins) {
-				c.moveTo(0, 0);
-				c.lineTo(padding, 0);
-				c.stroke();
-				c.ellipse(padding - size / 4, -size / 8, size / 4, size / 4);
-				c.fillAndStroke();
-			}
-			c.end();
-			break;
-		case "clk":
-		case "clock":
-			c.begin();
-			c.moveTo(padding, 0 - size / 4);
-			c.lineTo(padding + size / 4, 0);
-			c.lineTo(padding, 0 + size / 4);
-			if (drawPins) {
-				c.moveTo(0, 0);
-				c.lineTo(padding, 0);
-			}
-			c.stroke();
-			c.end();
-			txtOffset = size / 4;
-			break;
-		case "nclk":
-		case "nclock":
-			c.begin();
-			c.moveTo(padding, 0 - size / 4);
-			c.lineTo(padding + size / 4, 0);
-			c.lineTo(padding, 0 + size / 4);
-			if (drawPins) {
-				c.moveTo(0, 0);
-				c.lineTo(padding, 0);
-				c.stroke();
-				c.ellipse(padding / 2, 0 - padding / 4, padding / 2, padding / 2);
-			}
-			c.fillAndStroke();
-			c.end();
-			txtOffset = size / 4;
-			break;
-		default:
-			c.begin();
-			if (drawPins) {
-				c.moveTo(0, 0);
-				c.lineTo(padding, 0);
-				c.stroke();
-			}
-			c.end();
-			c.setFontFamily(fontFamily);
-			switch (rot) {
-				case 0:
-					c.text(5 + padding + txtOffset, 0, 0, 0, p.name, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-					break;
-				case 180:
-					c.text(5 + padding + txtOffset, 0, 0, 0, p.name, mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 180);
-					break;
-				case 90:
-					c.text(5 + padding + txtOffset, 0, 0, 0, p.name, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-					break;
-				case 270:
-					c.text(5 + padding + txtOffset, 0, 0, 0, p.name, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-					break;
-			}
-			c.rotate(-rot, 0, 0, 0, 0);
-			c.translate(-x, -y);
-			c.end();
+	if (pin.draw && drawPins) {
+		c.begin();
+		c.moveTo(0, 0);
+		c.lineTo(padding, 0);
+		c.stroke();
 	}
+	if (pin.clock) {
+		c.begin();
+		c.moveTo(padding, 0 - size / 4);
+		c.lineTo(padding + size / 4, 0);
+		c.lineTo(padding, 0 + size / 4);
+		c.stroke();
+		txtOffset += size/4;
+	}
+	if (pin.neg && pin.draw && drawPins) {
+		c.ellipse(padding - size / 6, -size / 12, size / 6, size / 6);
+		c.fillAndStroke();
+	}
+	if (pin.in && pin.draw && drawPins) {
+		c.begin();
+		c.moveTo(padding-8,0);
+		c.lineTo(padding-3,2);
+		c.lineTo(padding-3,-2);
+		c.close()
+		c.setFillColor(0);
+		c.fillAndStroke();
+	}
+	if (pin.out && pin.draw && drawPins) {
+		c.begin();
+		c.moveTo(padding-8, 2);
+		c.lineTo(padding-3,0);
+		c.lineTo(padding-8,-2);
+		c.close()
+		c.setFillColor(0);
+		c.fillAndStroke();
+	}
+	if (pin.inout && pin.draw && drawPins) {
+		c.begin();
+		c.moveTo(padding-9, 0);
+		c.lineTo(padding-6,2);
+		c.lineTo(padding-6,-2);
+		c.close()
+		c.setFillColor(0);
+		c.fillAndStroke();
+		c.begin();
+		c.moveTo(padding-4, 2);
+		c.lineTo(padding-1, 0);
+		c.lineTo(padding-4,-2);
+		c.close()
+		c.setFillColor(0);
+		c.fillAndStroke();
+	}
+	if (pin.notConnected && pin.draw) {
+		c.begin();
+		c.moveTo(0 - size / 8, 0 - size / 8);
+		c.lineTo(0 + size / 8, 0 + size / 8);
+		c.moveTo(0 - size / 8, 0 + size / 8);
+		c.lineTo(0 + size / 8, 0 - size / 8);
+		c.stroke();
+	}
+	c.setFontFamily(fontFamily);
+	switch (rot) {
+		case 0:
+			c.text(5 + padding + txtOffset, 0, 0, 0, pin.name, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			break;
+		case 180:
+			c.text(5 + padding + txtOffset, 0, 0, 0, pin.name, mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 180);
+			break;
+		case 90:
+			c.text(5 + padding + txtOffset, 0, 0, 0, pin.name, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			break;
+		case 270:
+			c.text(5 + padding + txtOffset, 0, 0, 0, pin.name, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			break;
+	}
+	c.rotate(-rot, 0, 0, 0, 0);
+	c.translate(-x, -y);
+	c.end();
 }
 
 function symbolRTLShiftReg(c, x, y, size) {
