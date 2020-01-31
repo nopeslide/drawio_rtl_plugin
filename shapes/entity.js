@@ -112,6 +112,11 @@ function createPins(s, w, h) {
 	return res;
 }
 
+mxShapeRTLEntity.prototype.calcTopY = function (x) { return padding; }
+mxShapeRTLEntity.prototype.calcBottomY = function (x) { return h - padding; }
+mxShapeRTLEntity.prototype.calcLeftX = function (y) { return padding; }
+mxShapeRTLEntity.prototype.calcRightX = function (y) { return w - padding; }
+
 mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 	window.c = c;
 	window.t = this;
@@ -148,35 +153,35 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 			break;
 	}
 
-	calcTopY = function (x) { return padding; }
-	calcBottomY = function (x) { return h - padding; }
-	calcLeftX = function (y) { return padding; }
-	calcRightX = function (y) { return w - padding; }
+	this.calcTopY = function (x) { return padding; }
+	this.calcBottomY = function (x) { return h - padding; }
+	this.calcLeftX = function (y) { return padding; }
+	this.calcRightX = function (y) { return w - padding; }
 
 	switch (kind) {
 		case 'mux':
-			calcTopY = function (x) { return (x - padding) * (0.2 * h - padding) / (w - 2 * padding) + padding }
-			calcBottomY = function (x) { return h - calcTopY(x) }
+			this.calcTopY = function (x) { return (x - padding) * (0.2 * h - padding) / (w - 2 * padding) + padding }
+			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
 			break;
 		case 'combinational':
-			calcTopY = function (x) { return h / 2 - ((h - 2 * padding) / 2) / ((w - 2 * padding) / 2) * Math.sqrt(Math.pow((w - 2 * padding) / 2, 2) - Math.pow(x - w / 2, 2)); }
-			calcBottomY = function (x) { return h - calcTopY(x); }
-			calcLeftX = function (y) { return w / 2 - ((w - 2 * padding) / 2) / ((h - 2 * padding) / 2) * Math.sqrt(Math.pow((h - 2 * padding) / 2, 2) - Math.pow(y - h / 2, 2)); }
-			calcRightX = function (y) { return w - calcLeftX(y); }
+			this.calcTopY = function (x) { return h / 2 - ((h - 2 * padding) / 2) / ((w - 2 * padding) / 2) * Math.sqrt(Math.pow((w - 2 * padding) / 2, 2) - Math.pow(x - w / 2, 2)); }
+			this.calcBottomY = function (x) { return h - this.calcTopY(x); }
+			this.calcLeftX = function (y) { return w / 2 - ((w - 2 * padding) / 2) / ((h - 2 * padding) / 2) * Math.sqrt(Math.pow((h - 2 * padding) / 2, 2) - Math.pow(y - h / 2, 2)); }
+			this.calcRightX = function (y) { return w - this.calcLeftX(y); }
 			break;
 		case 'demux':
-			calcTopY = function (x) { return (x - padding) * (-(0.2 * h - padding) / (w - 2 * padding)) + 0.2 * h }
-			calcBottomY = function (x) { return h - calcTopY(x) }
+			this.calcTopY = function (x) { return (x - padding) * (-(0.2 * h - padding) / (w - 2 * padding)) + 0.2 * h }
+			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
 			break;
 		case 'crossbar':
-			calcTopY = function (x) {
+			this.calcTopY = function (x) {
 				if (x < w / 2) {
 					return (x - padding) * (0.4 * h - padding) / (w - 2 * padding) + padding
 				} else {
 					return (x - padding) * (-(0.4 * h - padding) / (w - 2 * padding)) + 0.4 * h
 				}
 			}
-			calcBottomY = function (x) { return h - calcTopY(x) }
+			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
 			break;
 		case 'sequential':
 		default:
@@ -186,10 +191,10 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 	switch (kind) {
 		case 'mux':
 			c.begin();
-			c.moveTo(padding, calcTopY(padding));
-			c.lineTo(w - padding, calcTopY(w - padding));
-			c.lineTo(w - padding, calcBottomY(w - padding));
-			c.lineTo(padding, calcBottomY(padding));
+			c.moveTo(padding, this.calcTopY(padding));
+			c.lineTo(w - padding, this.calcTopY(w - padding));
+			c.lineTo(w - padding, this.calcBottomY(w - padding));
+			c.lineTo(padding, this.calcBottomY(padding));
 			c.close();
 			c.fillAndStroke();
 			break;
@@ -199,26 +204,26 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 			break;
 		case 'demux':
 			c.begin();
-			c.moveTo(padding, calcTopY(padding));
-			c.lineTo(w - padding, calcTopY(w - padding));
-			c.lineTo(w - padding, calcBottomY(w - padding));
-			c.lineTo(padding, calcBottomY(padding));
+			c.moveTo(padding, this.calcTopY(padding));
+			c.lineTo(w - padding, this.calcTopY(w - padding));
+			c.lineTo(w - padding, this.calcBottomY(w - padding));
+			c.lineTo(padding, this.calcBottomY(padding));
 			c.close();
 			c.fillAndStroke();
 			break;
 		case 'crossbar':
 			c.begin();
-			c.moveTo(padding, calcTopY(padding));
-			c.lineTo(w / 2, calcTopY(w / 2));
-			c.lineTo(w - padding, calcTopY(w - padding));
-			c.lineTo(w - padding, calcBottomY(w - padding));
-			c.lineTo(w / 2, calcBottomY(w / 2));
-			c.lineTo(padding, calcBottomY(padding));
+			c.moveTo(padding, this.calcTopY(padding));
+			c.lineTo(w / 2, this.calcTopY(w / 2));
+			c.lineTo(w - padding, this.calcTopY(w - padding));
+			c.lineTo(w - padding, this.calcBottomY(w - padding));
+			c.lineTo(w / 2, this.calcBottomY(w / 2));
+			c.lineTo(padding, this.calcBottomY(padding));
 			c.close();
 			c.fillAndStroke();
 			c.begin();
-			c.moveTo(w / 2, calcTopY(w / 2));
-			c.lineTo(w / 2, calcBottomY(w / 2));
+			c.moveTo(w / 2, this.calcTopY(w / 2));
+			c.lineTo(w / 2, this.calcBottomY(w / 2));
 			c.end();
 			c.stroke()
 			break;
@@ -233,29 +238,29 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 	spacing = h / (leftPins.length + 1);
 	pinY = spacing;
 	const fontFamily = this.style.fontFamily;
-	leftPins.forEach(function (p) {
-		drawPin(p, 0, pinY, 0, calcLeftX(pinY), type_size, drawPins, fontFamily);
+	leftPins.forEach((p) => {
+		drawPin(p, 0, pinY, 0, this.calcLeftX(pinY), type_size, drawPins, fontFamily);
 		pinY += spacing;
 	});
 
 	spacing = h / (rightPins.length + 1);
 	pinY = spacing;
-	rightPins.forEach(function (p) {
-		drawPin(p, w, pinY, 180, w - calcRightX(pinY), type_size, drawPins, fontFamily);
+	rightPins.forEach((p) => {
+		drawPin(p, w, pinY, 180, w - this.calcRightX(pinY), type_size, drawPins, fontFamily);
 		pinY += spacing;
 	});
 
 	spacing = w / (topPins.length + 1);
 	pinX = spacing;
-	topPins.forEach(function (p) {
-		drawPin(p, pinX, 0, 90, calcTopY(pinX), type_size, drawPins, fontFamily);
+	topPins.forEach((p) => {
+		drawPin(p, pinX, 0, 90, this.calcTopY(pinX), type_size, drawPins, fontFamily);
 		pinX += spacing;
 	});
 
 	spacing = w / (bottomPins.length + 1);
 	pinX = spacing;
-	bottomPins.forEach(function (p) {
-		drawPin(p, pinX, h, 270, h - calcBottomY(pinX), type_size, drawPins, fontFamily);
+	bottomPins.forEach((p) => {
+		drawPin(p, pinX, h, 270, h - this.calcBottomY(pinX), type_size, drawPins, fontFamily);
 		pinX += spacing;
 	});
 
@@ -613,26 +618,30 @@ mxShapeRTLEntity.prototype.getConstraints = function (style, w, h) {
 
 	spacing = h / (leftPins.length + 1)
 	pinY = spacing;
-	leftPins.forEach(function (p) {
-		constr.push(new mxConnectionConstraint(new mxPoint(0, pinY / h), false, 0, 0));
+	leftPins.forEach((p) => {
+		constr.push(new mxConnectionConstraint(new mxPoint(0, pinY / h), false, "", 0, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(this.calcLeftX(pinY)/w, pinY / h), false, "", 0, 0));
 		pinY += spacing;
 	});
 	spacing = h / (rightPins.length + 1)
 	pinY = spacing;
-	rightPins.forEach(function (p) {
-		constr.push(new mxConnectionConstraint(new mxPoint(1, pinY / h), false, 0, 0));
+	rightPins.forEach((p) => {
+		constr.push(new mxConnectionConstraint(new mxPoint(1, pinY / h), false, "", 0, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(this.calcRightX(pinY)/w, pinY / h), false, "", 0, 0));
 		pinY += spacing;
 	});
 	spacing = w / (topPins.length + 1)
 	pinX = spacing;
-	topPins.forEach(function (p) {
-		constr.push(new mxConnectionConstraint(new mxPoint(pinX / w, 0), false, 0, 0));
+	topPins.forEach((p) => {
+		constr.push(new mxConnectionConstraint(new mxPoint(pinX / w, 0), false, "", 0, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(pinX / w, this.calcTopY(pinX)/h), false, "", 0, 0));
 		pinX += spacing;
 	});
 	spacing = w / (bottomPins.length + 1)
 	pinX = spacing;
-	bottomPins.forEach(function (p) {
-		constr.push(new mxConnectionConstraint(new mxPoint(pinX / w, 1), false, 0, 0));
+	bottomPins.forEach((p) => {
+		constr.push(new mxConnectionConstraint(new mxPoint(pinX / w, 1), false, "", 0, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(pinX / w, (this.calcBottomY(pinX))/h), false, "", 0, 0));
 		pinX += spacing;
 	});
 	return (constr);
