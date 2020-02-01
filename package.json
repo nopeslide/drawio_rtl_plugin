@@ -14,7 +14,6 @@
   "dependencies": {
     "bit-field": "^1.2.0",
     "browserify": "^16.5.0",
-    "mermaid": "^8.4.6",
     "wavedrom": "^2.1.6"
   }
 }
