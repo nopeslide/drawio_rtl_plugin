@@ -184,7 +184,7 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 
 	switch (kind) {
 		case 'mux':
-			this.calcTopY = function (x) { return (x - padding) * (0.2 * h - padding) / (w - 2 * padding) + padding }
+			this.calcTopY = function (x) { return (x - padding)*0.75 + padding }
 			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
 			break;
 		case 'combinational':

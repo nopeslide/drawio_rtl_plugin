@@ -8289,6 +8289,10 @@ Sidebar.prototype.addRTLPalette = function() {
 ]`;
   this.addPaletteFunctions('rtl','RTL', true, [
     this.createVertexTemplateEntry('shadow=0;dashed=0;align=left;strokeWidth=1;shape=mxgraph.rtl.abstract.bitfield;labelBackgroundColor=#ffffff;noLabel=1;',  200, 100, BitfieldTxt, 'Bitfield', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'bitfield', 'rtl ').join(' ')),
+    this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;html=1;strokeWidth=1;shape=mxgraph.rtl.abstract.entity;container=1;collapsible=0;kind=mux;drawPins=0;left=4;right=1;bottom=0;',  30, 100, '', 'Mux', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'entity', 'mux ').join(' ')),
+    this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;html=1;strokeWidth=1;shape=mxgraph.rtl.abstract.entity;container=1;collapsible=0;kind=demux;drawPins=0;left=1;right=4;bottom=0;',  30, 100, '', 'DeMux', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'entity', 'demux ').join(' ')),
+    this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;html=1;strokeWidth=1;shape=mxgraph.rtl.abstract.entity;container=1;collapsible=0;kind=crossbar;drawPins=0;left=4;right=4;bottom=0;',  60, 100, '', 'Crossbar', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'entity', 'crossbar ').join(' ')),
+    this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;html=1;strokeWidth=1;shape=mxgraph.rtl.abstract.entity;container=1;collapsible=0;kind=combinational;drawPins=0;left=2;right=1;bottom=0;top=0;',  60, 100, '', 'Combinational Logic', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'entity', 'combinational ').join(' ')),
     this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;html=1;strokeWidth=1;shape=mxgraph.rtl.abstract.entity;container=1;collapsible=0;',  80, 120, 'Entity', 'Entity', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'entity', 'rtl ').join(' ')),
     this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;html=1;strokeWidth=1;shape=mxgraph.rtl.abstract.entity;left=,:clk;right=,:np;top=0;bottom=0;drawPins=0;snapToPoint=1;resizable=0;editable=1;',  40, 60, '', 'Register', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'reg', 'rtl ').join(' ')),
     this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;html=1;strokeWidth=1;shape=mxgraph.rtl.abstract.entity;verticalAlign=top;spacing=0;spacingTop=7;left=1;right=:n;top=0;bottom=0;drawPins=1;snapToPoint=1;resizable=0;editable=0;',  60, 60, '1', 'NOT', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'not', 'rtl ').join(' ')),
@@ -8362,14 +8366,11 @@ mxShapeRTLBitfield.prototype.paintVertexShape = function (c, x, y, w, h) {
 		fontfamily:this.style.fontFamily,
 	}
 
-	var jsonml = []
-
+	var jsonml = render(JSON.parse(this.state.cell.value),options);
 	jsonml[0] = "g";
+	var scale = Math.min(w/jsonml[1].width,h/jsonml[1].height) * c.state.scale;
 	jsonml[1] = {};
-	var tmp = render(JSON.parse(this.state.cell.value),options);
-	var scale = Math.min(w/tmp[1].width,h/tmp[1].height);
-	jsonml[1].transform="translate("+x+","+y+") scale("+scale+","+scale+")";
-	jsonml[2] = tmp;
+	jsonml[1].transform="translate("+x*c.state.scale+","+y*c.state.scale+") scale("+scale+","+scale+")";
 	this.node.innerHTML = onml.stringify(jsonml);
 }
 
@@ -8624,7 +8625,7 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 
 	switch (kind) {
 		case 'mux':
-			this.calcTopY = function (x) { return (x - padding) * (0.2 * h - padding) / (w - 2 * padding) + padding }
+			this.calcTopY = function (x) { return (x - padding)*0.75 + padding }
 			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
 			break;
 		case 'combinational':
