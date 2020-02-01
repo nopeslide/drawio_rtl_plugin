@@ -1,5 +1,7 @@
 # drawio_rtl_plugin
 
+![overview](doc/overview.png)
+
 ## Installation
 
 * clone repository
