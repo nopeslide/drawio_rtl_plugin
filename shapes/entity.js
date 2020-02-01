@@ -262,29 +262,30 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 	spacing = h / (leftPins.length + 1);
 	pinY = spacing;
 	const fontFamily = this.style.fontFamily;
+	const fillColor  = this.style.fillColor;
 	leftPins.forEach((p) => {
-		drawPin(p, 0, pinY, 0, this.calcLeftX(pinY), type_size, drawPins, fontFamily);
+		drawPin(p, 0, pinY, 0, this.calcLeftX(pinY), type_size, drawPins, fontFamily, fillColor);
 		pinY += spacing;
 	});
 
 	spacing = h / (rightPins.length + 1);
 	pinY = spacing;
 	rightPins.forEach((p) => {
-		drawPin(p, w, pinY, 180, w - this.calcRightX(pinY), type_size, drawPins, fontFamily);
+		drawPin(p, w, pinY, 180, w - this.calcRightX(pinY), type_size, drawPins, fontFamily, fillColor);
 		pinY += spacing;
 	});
 
 	spacing = w / (topPins.length + 1);
 	pinX = spacing;
 	topPins.forEach((p) => {
-		drawPin(p, pinX, 0, 90, this.calcTopY(pinX), type_size, drawPins, fontFamily);
+		drawPin(p, pinX, 0, 90, this.calcTopY(pinX), type_size, drawPins, fontFamily, fillColor);
 		pinX += spacing;
 	});
 
 	spacing = w / (bottomPins.length + 1);
 	pinX = spacing;
 	bottomPins.forEach((p) => {
-		drawPin(p, pinX, h, 270, h - this.calcBottomY(pinX), type_size, drawPins, fontFamily);
+		drawPin(p, pinX, h, 270, h - this.calcBottomY(pinX), type_size, drawPins, fontFamily, fillColor);
 		pinX += spacing;
 	});
 
@@ -337,7 +338,7 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 	};
 };
 
-function drawPin(pin, x, y, rot, padding, size, drawPins, fontFamily) {
+function drawPin(pin, x, y, rot, padding, size, drawPins, fontFamily, fillColor) {
 	c.translate(x, y);
 	c.rotate(rot, 0, 0, 0, 0);
 	var txtOffset = 0;
@@ -367,6 +368,7 @@ function drawPin(pin, x, y, rot, padding, size, drawPins, fontFamily) {
 		c.close()
 		c.setFillColor(0);
 		c.fillAndStroke();
+		c.setFillColor(fillColor);
 	}
 	if (pin.out && pin.draw && drawPins) {
 		c.begin();
@@ -376,6 +378,7 @@ function drawPin(pin, x, y, rot, padding, size, drawPins, fontFamily) {
 		c.close()
 		c.setFillColor(0);
 		c.fillAndStroke();
+		c.setFillColor(fillColor);
 	}
 	if (pin.inout && pin.draw && drawPins) {
 		c.begin();
@@ -392,6 +395,7 @@ function drawPin(pin, x, y, rot, padding, size, drawPins, fontFamily) {
 		c.close()
 		c.setFillColor(0);
 		c.fillAndStroke();
+		c.setFillColor(fillColor);
 	}
 	if (pin.notConnected && pin.draw) {
 		c.begin();
