@@ -8320,14 +8320,16 @@ var onml = require('onml');
 function mxShapeRTLBitfield(bounds, fill, stroke, strokewidth) {
 	mxShape.call(this);
 	this.bounds = bounds;
+	this.image = '';
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.shadow = false;
 };
 /**
 * Extends mxShape.
 */
-mxUtils.extend(mxShapeRTLBitfield, mxShape);
+mxUtils.extend(mxShapeRTLBitfield, mxImageShape);
 
 mxShapeRTLBitfield.prototype.cst = {
 	SHAPE_BITFIELD: 'mxgraph.rtl.abstract.bitfield'
@@ -8367,11 +8369,8 @@ mxShapeRTLBitfield.prototype.paintVertexShape = function (c, x, y, w, h) {
 	}
 
 	var jsonml = render(JSON.parse(this.state.cell.value),options);
-	jsonml[0] = "g";
-	var scale = Math.min(w/jsonml[1].width,h/jsonml[1].height) * c.state.scale;
-	jsonml[1] = {};
-	jsonml[1].transform="translate("+x*c.state.scale+","+y*c.state.scale+") scale("+scale+","+scale+")";
-	this.node.innerHTML = onml.stringify(jsonml);
+	this.image = 'data:image/svg+xml;base64,' + btoa(onml.stringify(jsonml));
+	c.image(x, y, w, h, this.image, this.preserveImageAspect, false, false);
 }
 
 mxCellRenderer.registerShape(mxShapeRTLBitfield.prototype.cst.SHAPE_BITFIELD, mxShapeRTLBitfield);
