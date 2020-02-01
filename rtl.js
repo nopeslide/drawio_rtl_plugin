@@ -1,6 +1,7 @@
 
 var bitfield = require("./shapes/bitfield.js")
 var wavedrom = require("./shapes/wavedrom.js")
+var mermaid = require("./shapes/mermaid.js")
 var entity = require("./shapes/entity.js")
 var bus = require("./shapes/bus.js")
 
@@ -21,9 +22,11 @@ Sidebar.prototype.addRTLPalette = function() {
 { "name": "B", "bits": 1, "attr": "" }
 ]`;
 	var WavedromTxt = `{ "signal": [{ "name": "Alfa", "wave": "01.zx=ud.23.456789" }] }`
+	var MermaidTxt = 'graph TB\na-->b';
   this.addPaletteFunctions('rtl','RTL', true, [
     this.createVertexTemplateEntry('shadow=0;dashed=0;align=left;strokeWidth=1;shape=mxgraph.rtl.abstract.bitfield;labelBackgroundColor=#ffffff;noLabel=1;',  200, 100, BitfieldTxt, 'Bitfield', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'bitfield', 'rtl ').join(' ')),
     this.createVertexTemplateEntry('shadow=0;dashed=0;align=left;strokeWidth=1;shape=mxgraph.rtl.abstract.wavedrom;labelBackgroundColor=#ffffff;noLabel=1;',  200, 100, WavedromTxt, 'Wavedrom', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'wavedrom', 'rtl ').join(' ')),
+    this.createVertexTemplateEntry('shadow=0;dashed=0;align=left;strokeWidth=1;shape=mxgraph.rtl.abstract.mermaid;labelBackgroundColor=#ffffff;noLabel=1;',  100, 200, MermaidTxt, 'Mermaid', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'mermaid', 'rtl ').join(' ')),
     this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;html=1;strokeWidth=1;shape=mxgraph.rtl.abstract.entity;container=1;collapsible=0;kind=mux;drawPins=0;left=4;right=1;bottom=0;',  30, 100, '', 'Mux', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'entity', 'mux ').join(' ')),
     this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;html=1;strokeWidth=1;shape=mxgraph.rtl.abstract.entity;container=1;collapsible=0;kind=demux;drawPins=0;left=1;right=4;bottom=0;',  30, 100, '', 'DeMux', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'entity', 'demux ').join(' ')),
     this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;html=1;strokeWidth=1;shape=mxgraph.rtl.abstract.entity;container=1;collapsible=0;kind=crossbar;drawPins=0;left=4;right=4;bottom=0;',  60, 100, '', 'Crossbar', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'entity', 'crossbar ').join(' ')),
