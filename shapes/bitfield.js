@@ -52,14 +52,11 @@ mxShapeRTLBitfield.prototype.paintVertexShape = function (c, x, y, w, h) {
 		fontfamily:this.style.fontFamily,
 	}
 
-	var jsonml = []
-
+	var jsonml = render(JSON.parse(this.state.cell.value),options);
 	jsonml[0] = "g";
+	var scale = Math.min(w/jsonml[1].width,h/jsonml[1].height) * c.state.scale;
 	jsonml[1] = {};
-	var tmp = render(JSON.parse(this.state.cell.value),options);
-	var scale = Math.min(w/tmp[1].width,h/tmp[1].height);
-	jsonml[1].transform="translate("+x+","+y+") scale("+scale+","+scale+")";
-	jsonml[2] = tmp;
+	jsonml[1].transform="translate("+x*c.state.scale+","+y*c.state.scale+") scale("+scale+","+scale+")";
 	this.node.innerHTML = onml.stringify(jsonml);
 }
 
