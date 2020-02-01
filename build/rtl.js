@@ -10399,6 +10399,7 @@ mxShapeRTLBitfield.prototype.paintVertexShape = function (c, x, y, w, h) {
 	var jsonml = render(JSON.parse(this.state.cell.value),options);
 	this.image = 'data:image/svg+xml;base64,' + btoa(onml.stringify(jsonml));
 	c.image(x, y, w, h, this.image, this.preserveImageAspect, false, false);
+	this.state.cell.valueChanged = (value) => { mxCell.prototype.valueChanged.call(this.state.cell, value); this.redraw(); }
 }
 
 mxCellRenderer.registerShape(mxShapeRTLBitfield.prototype.cst.SHAPE_BITFIELD, mxShapeRTLBitfield);
@@ -11175,6 +11176,7 @@ mxShapeRTLWavedrom.prototype.paintVertexShape = function (c, x, y, w, h) {
 	jsonml[1].viewBox = "-30 0 "+ jsonml[1].width + " " + jsonml[1].height;
 	this.image = 'data:image/svg+xml;base64,' + btoa(onml.stringify(jsonml));
 	c.image(x, y, w, h, this.image, this.preserveImageAspect, false, false);
+	this.state.cell.valueChanged = (value) => { mxCell.prototype.valueChanged.call(this.state.cell, value); this.redraw(); }
 }
 
 mxCellRenderer.registerShape(mxShapeRTLWavedrom.prototype.cst.SHAPE_WAVEDROM, mxShapeRTLWavedrom);
