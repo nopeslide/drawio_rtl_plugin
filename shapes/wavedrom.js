@@ -28,18 +28,24 @@ mxShapeRTLWavedrom.prototype.cst = {
 mxShapeRTLWavedrom.prototype.customProperties = [
 ];
 
+mxShapeRTLWavedrom.prototype.updateImage = function () {
+	var skins = Object.assign({}, def, narrow, lowkey);
+	var jsonml = render.renderAny(0,JSON.parse(this.state.cell.value),skins);
+	jsonml[1].viewBox = "-30 0 "+ jsonml[1].width + " " + jsonml[1].height;
+	this.image = 'data:image/svg+xml;base64,' + btoa(onml.stringify(jsonml));
+}
+
 /**
 * Function: paintVertexShape
 * Untitled Diagram.drawio
 * Paints the vertex shape.
 */
 mxShapeRTLWavedrom.prototype.paintVertexShape = function (c, x, y, w, h) {
-	var skins = Object.assign({}, def, narrow, lowkey);
-	var jsonml = render.renderAny(0,JSON.parse(this.state.cell.value),skins);
-	jsonml[1].viewBox = "-30 0 "+ jsonml[1].width + " " + jsonml[1].height;
-	this.image = 'data:image/svg+xml;base64,' + btoa(onml.stringify(jsonml));
+	if (!this.image) {
+		this.updateImage();
+	}
 	c.image(x, y, w, h, this.image, this.preserveImageAspect, false, false);
-	this.state.cell.valueChanged = (value) => { mxCell.prototype.valueChanged.call(this.state.cell, value); this.redraw(); }
+	this.state.cell.valueChanged = (value) => { mxCell.prototype.valueChanged.call(this.state.cell, value); this.updateImage(); this.redraw(); }
 }
 
 mxCellRenderer.registerShape(mxShapeRTLWavedrom.prototype.cst.SHAPE_WAVEDROM, mxShapeRTLWavedrom);

@@ -30,12 +30,7 @@ mxShapeRTLBitfield.prototype.customProperties = [
 	{ name: 'bigendian', dispName: 'Big Endian', type: 'boolean', defVal: false },
 ];
 
-/**
-* Function: paintVertexShape
-* Untitled Diagram.drawio
-* Paints the vertex shape.
-*/
-mxShapeRTLBitfield.prototype.paintVertexShape = function (c, x, y, w, h) {
+mxShapeRTLBitfield.prototype.updateImage = function () {
 	var vspace = parseInt(mxUtils.getValue(this.style, 'vspace', '80'));
 	var hspace = parseInt(mxUtils.getValue(this.style, 'hspace', '320'));
 	var lanes  = parseInt(mxUtils.getValue(this.style, 'lanes', '1'));
@@ -56,8 +51,19 @@ mxShapeRTLBitfield.prototype.paintVertexShape = function (c, x, y, w, h) {
 
 	var jsonml = render(JSON.parse(this.state.cell.value),options);
 	this.image = 'data:image/svg+xml;base64,' + btoa(onml.stringify(jsonml));
+}
+
+/**
+* Function: paintVertexShape
+* Untitled Diagram.drawio
+* Paints the vertex shape.
+*/
+mxShapeRTLBitfield.prototype.paintVertexShape = function (c, x, y, w, h) {
+	if (!this.image) {
+		this.updateImage();
+	}
 	c.image(x, y, w, h, this.image, this.preserveImageAspect, false, false);
-	this.state.cell.valueChanged = (value) => { mxCell.prototype.valueChanged.call(this.state.cell, value); this.redraw(); }
+	this.state.cell.valueChanged = (value) => { mxCell.prototype.valueChanged.call(this.state.cell, value); this.updateImage(); this.redraw(); }
 }
 
 mxCellRenderer.registerShape(mxShapeRTLBitfield.prototype.cst.SHAPE_BITFIELD, mxShapeRTLBitfield);
