@@ -10837,7 +10837,11 @@ function drawPin(pin, x, y, rot, padding, size, drawPins, fontFamily, fillColor)
 	if (pin.draw && drawPins) {
 		c.begin();
 		c.moveTo(0, 0);
-		c.lineTo(padding, 0);
+		if (pin.neg) {
+			c.lineTo(padding - size/6, 0);
+		} else {
+			c.lineTo(padding, 0);
+		}
 		c.stroke();
 	}
 	if (pin.clock) {
