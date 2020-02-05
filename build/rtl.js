@@ -10553,7 +10553,8 @@ mxShapeRTLEntity.prototype.customProperties = [
 	{ name: 'right', dispName: 'Ports right', type: 'string', defVal: "2" },
 	{ name: 'top', dispName: 'Ports top', type: 'string', defVal: "1" },
 	{ name: 'bottom', dispName: 'Ports bottom', type: 'string', defVal: "1" },
-	{ name: 'drawPins', dispName: 'Draw Pins', type: 'bool', defVal: false }
+	{ name: 'drawPins', dispName: 'Draw Pins', type: 'bool', defVal: false },
+	{ name: 'pinFontSize', dispName: 'Pin Fontsize', type: 'int', min: 1, max: 1000, defVal: 12 }
 ];
 
 /**
@@ -10633,7 +10634,7 @@ mxShapeRTLEntity.prototype.calcBottomY = function (x) { return h - padding; }
 mxShapeRTLEntity.prototype.calcLeftX = function (y) { return padding; }
 mxShapeRTLEntity.prototype.calcRightX = function (y) { return w - padding; }
 
-mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
+mxShapeRTLEntity.prototype.paintBackground = function (c, x, y, w, h) {
 	window.c = c;
 	window.t = this;
 	c.translate(x, y);
@@ -10648,6 +10649,7 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 	var drawPins = mxUtils.getValue(this.style, 'drawPins', false);
 	var padding = drawPins * 10;
 	var fontSize = parseFloat(mxUtils.getValue(this.style, 'fontSize', '12'));
+	var pinFontSize = parseFloat(mxUtils.getValue(this.style, 'pinFontSize', '12'));
 	//c.setFontSize(fontSize * 0.5);
 	var fontColor = mxUtils.getValue(this.style, 'fontColor', '#000000');
 	c.setFontColor(fontColor);
@@ -10751,33 +10753,33 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 			break;
 	}
 
-	spacing = h / (leftPins.length + 1);
-	pinY = spacing;
 	const fontFamily = this.style.fontFamily;
 	const fillColor  = this.style.fillColor;
+	spacing = h / (leftPins.length + 1);
+	pinY = spacing;
 	leftPins.forEach((p) => {
-		drawPin(p, 0, pinY, 0, this.calcLeftX(pinY), type_size, drawPins, fontFamily, fillColor);
+		drawPin(p, 0, pinY, 0, this.calcLeftX(pinY), type_size, drawPins, fontFamily, pinFontSize, fillColor);
 		pinY += spacing;
 	});
 
 	spacing = h / (rightPins.length + 1);
 	pinY = spacing;
 	rightPins.forEach((p) => {
-		drawPin(p, w, pinY, 180, w - this.calcRightX(pinY), type_size, drawPins, fontFamily, fillColor);
+		drawPin(p, w, pinY, 180, w - this.calcRightX(pinY), type_size, drawPins, fontFamily, pinFontSize, fillColor);
 		pinY += spacing;
 	});
 
 	spacing = w / (topPins.length + 1);
 	pinX = spacing;
 	topPins.forEach((p) => {
-		drawPin(p, pinX, 0, 90, this.calcTopY(pinX), type_size, drawPins, fontFamily, fillColor);
+		drawPin(p, pinX, 0, 90, this.calcTopY(pinX), type_size, drawPins, fontFamily, pinFontSize, fillColor);
 		pinX += spacing;
 	});
 
 	spacing = w / (bottomPins.length + 1);
 	pinX = spacing;
 	bottomPins.forEach((p) => {
-		drawPin(p, pinX, h, 270, h - this.calcBottomY(pinX), type_size, drawPins, fontFamily, fillColor);
+		drawPin(p, pinX, h, 270, h - this.calcBottomY(pinX), type_size, drawPins, fontFamily, pinFontSize, fillColor);
 		pinX += spacing;
 	});
 
@@ -10830,7 +10832,7 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 	};
 };
 
-function drawPin(pin, x, y, rot, padding, size, drawPins, fontFamily, fillColor) {
+function drawPin(pin, x, y, rot, padding, size, drawPins, fontFamily, fontSize, fillColor) {
 	c.translate(x, y);
 	c.rotate(rot, 0, 0, 0, 0);
 	var txtOffset = 0;
@@ -10902,6 +10904,7 @@ function drawPin(pin, x, y, rot, padding, size, drawPins, fontFamily, fillColor)
 		c.stroke();
 	}
 	c.setFontFamily(fontFamily);
+	c.setFontSize(fontSize);
 	switch (rot) {
 		case 0:
 			c.text(5 + padding + txtOffset, 0, 0, 0, pin.name, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
