@@ -14,6 +14,7 @@
   "dependencies": {
     "bit-field": "^1.2.0",
     "browserify": "^16.5.0",
+    "calculate-size": "^1.1.1",
     "wavedrom": "^2.1.6"
   }
 }
