@@ -51,7 +51,7 @@ mxShapeRTLBitfield.prototype.updateImage = function () {
 	}
 	try {
 		var jsonml = render(JSON.parse(this.state.cell.value),options);
-		this.image = 'data:image/svg+xml;base64,' + btoa(onml.stringify(jsonml));
+		this.image = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(onml.stringify(jsonml))));
 		this.error = '';
 	} catch (err) {
 		this.error = err.message;

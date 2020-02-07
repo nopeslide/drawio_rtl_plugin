@@ -10437,7 +10437,7 @@ mxShapeRTLBitfield.prototype.updateImage = function () {
 	}
 	try {
 		var jsonml = render(JSON.parse(this.state.cell.value),options);
-		this.image = 'data:image/svg+xml;base64,' + btoa(onml.stringify(jsonml));
+		this.image = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(onml.stringify(jsonml))));
 		this.error = '';
 	} catch (err) {
 		this.error = err.message;
@@ -11281,7 +11281,7 @@ mxShapeRTLWavedrom.prototype.updateImage = function () {
 		var skins = Object.assign({}, def, narrow, lowkey);
 		var jsonml = render.renderAny(0,JSON.parse(this.state.cell.value),skins);
 		jsonml[1].viewBox = "-30 0 "+ jsonml[1].width + " " + jsonml[1].height;
-		this.image = 'data:image/svg+xml;base64,' + btoa(onml.stringify(jsonml));
+		this.image = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(onml.stringify(jsonml))));
 		this.error = '';
 	} catch (err) {
 		this.error = err.message;
