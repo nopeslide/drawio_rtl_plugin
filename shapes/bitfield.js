@@ -49,6 +49,7 @@ mxShapeRTLBitfield.prototype.updateImage = function () {
 		fontsize:this.style.fontSize,
 		fontfamily:this.style.fontFamily,
 	}
+	
 	try {
 		var jsonml = render(JSON.parse(this.state.cell.value),options);
 		this.image = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(onml.stringify(jsonml))));
@@ -79,7 +80,7 @@ mxShapeRTLBitfield.prototype.paintVertexShape = function (c, x, y, w, h) {
 		c.stroke();
 	}
 	window.c = c;
-	this.state.cell.valueChanged = (value) => { mxCell.prototype.valueChanged.call(this.state.cell, value); this.updateImage(); this.redraw(); }
+	this.state.cell.valueChanged = (value) => { var lastValue = mxCell.prototype.valueChanged.call(this.state.cell, value); this.updateImage(); this.redraw(); return lastValue; }
 }
 
 mxCellRenderer.registerShape(mxShapeRTLBitfield.prototype.cst.SHAPE_BITFIELD, mxShapeRTLBitfield);
