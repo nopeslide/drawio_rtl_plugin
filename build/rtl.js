@@ -8433,6 +8433,8 @@ function appendSaveAsDialog (index, output) {
 
 module.exports = appendSaveAsDialog;
 
+/* eslint-env browser */
+
 },{}],43:[function(require,module,exports){
 'use strict';
 
@@ -8573,6 +8575,8 @@ function jsonmlParse (arr) {
 module.exports = jsonmlParse;
 // module.exports = createElement;
 
+/* eslint-env browser */
+
 },{"./w3.js":75,"onml/lib/stringify.js":76}],46:[function(require,module,exports){
 'use strict';
 
@@ -8648,6 +8652,8 @@ function eva (id) {
 }
 
 module.exports = eva;
+
+/* eslint-env browser */
 
 },{}],48:[function(require,module,exports){
 'use strict';
@@ -8914,7 +8920,7 @@ module.exports = insertSVGTemplateAssign;
 
 var w3 = require('./w3');
 
-function insertSVGTemplate (index, source, lane, waveSkin, content, lanes, groups) {
+function insertSVGTemplate (index, source, lane, waveSkin, content, lanes, groups, notFirstSignal) {
     var first, skin, e;
 
     for (first in waveSkin) { break; }
@@ -8925,10 +8931,10 @@ function insertSVGTemplate (index, source, lane, waveSkin, content, lanes, group
         skin = waveSkin[source.config.skin];
     }
 
-    if (index === 0) {
-        e = skin;
-    } else {
+    if (notFirstSignal) {
         e = ['svg', {id: 'svg', xmlns: w3.svg, 'xmlns:xlink': w3.xlink}, ['g']];
+    } else {
+        e = skin;
     }
 
     var width = (lane.xg + (lane.xs * (lane.xmax + 1)));
@@ -9215,7 +9221,7 @@ function processAll () {
     var points,
         i,
         index,
-        iwave,
+        notFirstSignal,
         obj,
         node0;
         // node1;
@@ -9236,20 +9242,21 @@ function processAll () {
         }
     }
     // second pass
-    iwave = 0;
     for (i = 0; i < index; i += 1) {
         obj = eva('InputJSON_' + i);
-        renderWaveForm(iwave, obj, 'WaveDrom_Display_');
-        appendSaveAsDialog(i, 'WaveDrom_Display_');
-        if (obj && obj.signal) {
-            iwave += 1;
+        renderWaveForm(i, obj, 'WaveDrom_Display_', notFirstSignal);
+        if (obj && obj.signal && !notFirstSignal) {
+            notFirstSignal = true;
         }
+        appendSaveAsDialog(i, 'WaveDrom_Display_');
     }
     // add styles
     document.head.innerHTML += '<style type="text/css">div.wavedromMenu{position:fixed;border:solid 1pt#CCCCCC;background-color:white;box-shadow:0px 10px 20px #808080;cursor:default;margin:0px;padding:0px;}div.wavedromMenu>ul{margin:0px;padding:0px;}div.wavedromMenu>ul>li{padding:2px 10px;list-style:none;}div.wavedromMenu>ul>li:hover{background-color:#b5d5ff;}</style>';
 }
 
 module.exports = processAll;
+
+/* eslint-env browser */
 
 },{"./append-save-as-dialog":42,"./eva":47,"./render-wave-form":72}],60:[function(require,module,exports){
 'use strict';
@@ -9289,9 +9296,9 @@ var renderAssign = require('./render-assign.js');
 var renderReg = require('./render-reg.js');
 var renderSignal = require('./render-signal.js');
 
-function renderAny (index, source, waveSkin) {
+function renderAny (index, source, waveSkin, notFirstSignal) {
     var res = source.signal ?
-        renderSignal(index, source, waveSkin) :
+        renderSignal(index, source, waveSkin, notFirstSignal) :
         source.assign ?
             renderAssign(index, source) :
             source.reg ?
@@ -9901,7 +9908,7 @@ function laneParamsFromSkin (index, source, lane, waveSkin) {
     lane.ym     = Number(socket.y);
 }
 
-function renderSignal (index, source, waveSkin) {
+function renderSignal (index, source, waveSkin, notFirstSignal) {
 
     laneParamsFromSkin (index, source, lane, waveSkin);
 
@@ -9921,7 +9928,8 @@ function renderSignal (index, source, waveSkin) {
     return insertSVGTemplate(
         index, source, lane, waveSkin, content,
         renderLanes(index, content, waveLanes, ret, source, lane),
-        waveGroups
+        waveGroups,
+        notFirstSignal
     );
 
 }
@@ -9934,7 +9942,7 @@ module.exports = renderSignal;
 var renderAny = require('./render-any.js');
 var jsonmlParse = require('./create-element');
 
-function renderWaveElement (index, source, outputElement, waveSkin) {
+function renderWaveElement (index, source, outputElement, waveSkin, notFirstSignal) {
 
     // cleanup
     while (outputElement.childNodes.length) {
@@ -9942,7 +9950,7 @@ function renderWaveElement (index, source, outputElement, waveSkin) {
     }
 
     outputElement.insertBefore(jsonmlParse(
-        renderAny(index, source, waveSkin)
+        renderAny(index, source, waveSkin, notFirstSignal)
     ), null);
 }
 
@@ -9953,11 +9961,13 @@ module.exports = renderWaveElement;
 
 var renderWaveElement = require('./render-wave-element');
 
-function renderWaveForm (index, source, output) {
-    renderWaveElement(index, source, document.getElementById(output + index), window.WaveSkin);
+function renderWaveForm (index, source, output, notFirstSignal) {
+    renderWaveElement(index, source, document.getElementById(output + index), window.WaveSkin, notFirstSignal);
 }
 
 module.exports = renderWaveForm;
+
+/* eslint-env browser */
 
 },{"./render-wave-element":71}],73:[function(require,module,exports){
 'use strict';
@@ -10048,7 +10058,7 @@ module.exports = renderWaveLane;
 },{"./find-lane-markers":48,"./text-width.js":74,"tspan":38}],74:[function(require,module,exports){
 'use strict';
 
-var charWidth = require('./char-width');
+var charWidth = require('./char-width.json');
 
 /**
     Calculates text string width in pixels.
@@ -10074,7 +10084,7 @@ module.exports = function (str, size) {
     return (width * size) / 100; // normalize
 };
 
-},{"./char-width":44}],75:[function(require,module,exports){
+},{"./char-width.json":44}],75:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -10200,9 +10210,9 @@ module.exports = stringify;
 },{}],77:[function(require,module,exports){
 module.exports={
   "_from": "wavedrom@^2.1.6",
-  "_id": "wavedrom@2.3.0",
+  "_id": "wavedrom@2.3.2",
   "_inBundle": false,
-  "_integrity": "sha512-uHPs4q/XaELHkGx8kjG3E/2puZIOD+Kcu6TZDkj8uCflBsmrXI+eTfNGDm3YjHUXsyvLaQjY4oKlBocIIMztcg==",
+  "_integrity": "sha512-QarFXQnE52zyZeKVUWgDaAx9bxwiF+fTlTpNWxdWnBVYmIfC9vKQWqKqq9sKsp9dgeWp7f5fw0fQ01MgCeWgCw==",
   "_location": "/wavedrom",
   "_phantomChildren": {
     "camelcase": "5.3.1",
@@ -10234,25 +10244,25 @@ module.exports={
   "_requiredBy": [
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/wavedrom/-/wavedrom-2.3.0.tgz",
-  "_shasum": "9ed1608dcb701aa1ada52ad4bad8bfa528ff3c75",
+  "_resolved": "https://registry.npmjs.org/wavedrom/-/wavedrom-2.3.2.tgz",
+  "_shasum": "dd49724efb1d6e3d9d2b1882faf3a2a712396025",
   "_spec": "wavedrom@^2.1.6",
-  "_where": "/home/mx/git/drawio_rtl_plugin",
+  "_where": "/home/drechsler/git/drawio_rtl_plugin",
   "author": {
     "name": "alex.drom@gmail.com"
   },
   "bin": {
-    "wavedrom": "./bin/cli.js"
+    "wavedrom": "bin/cli.js"
   },
   "bugs": {
     "url": "https://github.com/wavedrom/wavedrom/issues"
   },
   "bundleDependencies": false,
   "dependencies": {
-    "bit-field": "^1.2.0",
+    "bit-field": "^1.2.1",
     "fs-extra": "^8.0.1",
     "json5": "^2.1.1",
-    "onml": "^1.1.0",
+    "onml": "^1.2.0",
     "tspan": "^0.3.6",
     "yargs": "^14.2.0"
   },
@@ -10279,9 +10289,6 @@ module.exports={
     "extends": "@drom/eslint-config/eslint4/node4",
     "rules": {
       "camelcase": 0
-    },
-    "env": {
-      "browser": true
     }
   },
   "files": [
@@ -10315,7 +10322,7 @@ module.exports={
     "unpkg": "browserify --standalone wavedrom lib/index.js > wavedrom.unpkg.js"
   },
   "unpkg": "wavedrom.unpkg.js",
-  "version": "2.3.0"
+  "version": "2.3.2"
 }
 
 },{}],78:[function(require,module,exports){
@@ -10904,7 +10911,7 @@ function drawPin(pin, x, y, rot, padding, size, drawPins, fontFamily, fontSize, 
 		c.ellipse(padding - size / 6, -size / 12, size / 6, size / 6);
 		c.fillAndStroke();
 	}
-	if (pin.in && pin.draw && drawPins) {
+	if (pin.out && pin.draw && drawPins) {
 		c.begin();
 		c.moveTo(padding-8,0);
 		c.lineTo(padding-3,2);
@@ -10914,7 +10921,7 @@ function drawPin(pin, x, y, rot, padding, size, drawPins, fontFamily, fontSize, 
 		c.fillAndStroke();
 		c.setFillColor(fillColor);
 	}
-	if (pin.out && pin.draw && drawPins) {
+	if (pin.in && pin.draw && drawPins) {
 		c.begin();
 		c.moveTo(padding-8, 2);
 		c.lineTo(padding-3,0);

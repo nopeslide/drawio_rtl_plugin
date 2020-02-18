@@ -368,7 +368,7 @@ function drawPin(pin, x, y, rot, padding, size, drawPins, fontFamily, fontSize, 
 		c.ellipse(padding - size / 6, -size / 12, size / 6, size / 6);
 		c.fillAndStroke();
 	}
-	if (pin.in && pin.draw && drawPins) {
+	if (pin.out && pin.draw && drawPins) {
 		c.begin();
 		c.moveTo(padding-8,0);
 		c.lineTo(padding-3,2);
@@ -378,7 +378,7 @@ function drawPin(pin, x, y, rot, padding, size, drawPins, fontFamily, fontSize, 
 		c.fillAndStroke();
 		c.setFillColor(fillColor);
 	}
-	if (pin.out && pin.draw && drawPins) {
+	if (pin.in && pin.draw && drawPins) {
 		c.begin();
 		c.moveTo(padding-8, 2);
 		c.lineTo(padding-3,0);
