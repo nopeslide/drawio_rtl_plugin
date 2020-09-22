@@ -633,6 +633,10 @@ function symbolRTLFSM(c, x, y, size) {
 
 mxCellRenderer.registerShape(mxShapeRTLEntity.prototype.cst.SHAPE_ENTITY, mxShapeRTLEntity);
 
+function newConnectionConstraint(x, y, w, h, ox, oy) {
+	return new mxConnectionConstraint(new mxPoint(0, 0), false, "", x + ox,y + oy);
+}
+
 mxShapeRTLEntity.prototype.getConstraints = function (style, w, h) {
 	var constr = [];
 	var leftPins = parsePinString(mxUtils.getValue(this.style, 'left', '3'));
@@ -645,64 +649,66 @@ mxShapeRTLEntity.prototype.getConstraints = function (style, w, h) {
 	var drawPins = mxUtils.getValue(this.style, 'drawPins', false);
 	var padding = 10 + (!drawPins)*10;
 
-	
+
 	spacing = h / (leftPins.length + 1)
 	pinY = spacing;
 	leftPins.forEach((p) => {
-		constr.push(new mxConnectionConstraint(new mxPoint(0, pinY / h), false, "", 0, 0));
-		constr.push(new mxConnectionConstraint(new mxPoint(0, pinY / h), false, "", this.calcLeftX(pinY), 0));
+		constr.push(newConnectionConstraint(0,pinY,w,h,0,0));
+		constr.push(newConnectionConstraint(0,pinY,w,h,this.calcLeftX(pinY),0));
 		if (p.name) {
 			var txtLength = padding;
 			if (p.clock) {
 				txtLength += type_size/4;
 			}
 			txtLength += calculateSize.default(p.name, {font: this.style.fontFamily, fontSize: pinFontSize+"px"}).width;
-			constr.push(new mxConnectionConstraint(new mxPoint(0, pinY / h), false, "", this.calcLeftX(pinY)+txtLength, 0));
+			constr.push(newConnectionConstraint(0,pinY,w,h,this.calcLeftX(pinY)+txtLength,0));
 		}
 		pinY += spacing;
 	});
 	spacing = h / (rightPins.length + 1)
 	pinY = spacing;
 	rightPins.forEach((p) => {
-		constr.push(new mxConnectionConstraint(new mxPoint(1, pinY / h), false, "", 0, 0));
-		constr.push(new mxConnectionConstraint(new mxPoint(1, pinY / h), false, "", this.calcRightX(pinY)-w, 0));
+		constr.push(newConnectionConstraint(w,pinY,w,h,0,0));
+		constr.push(newConnectionConstraint(w,pinY,w,h,this.calcRightX(pinY)-w,0));
 		if (p.name) {
 			var txtLength = padding;
 			if (p.clock) {
 				txtLength += type_size/4;
 			}
 			txtLength += calculateSize.default(p.name, {font: this.style.fontFamily, fontSize: pinFontSize+"px"}).width;
-			constr.push(new mxConnectionConstraint(new mxPoint(1, pinY / h), false, "", this.calcRightX(pinY)-txtLength-w, 0));
+			constr.push(newConnectionConstraint(w,pinY,w,h,this.calcRightX(pinY)-w-txtLength,0));
 		}
 		pinY += spacing;
 	});
 	spacing = w / (topPins.length + 1)
 	pinX = spacing;
 	topPins.forEach((p) => {
-		constr.push(new mxConnectionConstraint(new mxPoint(pinX / w, 0), false, "", 0, 0));
-		constr.push(new mxConnectionConstraint(new mxPoint(pinX / w, 0), false, "", 0, this.calcTopY(pinX)));
+		constr.push(newConnectionConstraint(pinX,0,w,h,0,0));
+		constr.push(newConnectionConstraint(pinX,0,w,h,0,this.calcTopY(pinX)));
 		if (p.name) {
 			var txtLength = padding;
 			if (p.clock) {
 				txtLength += type_size/4;
 			}
 			txtLength += calculateSize.default(p.name, {font: this.style.fontFamily, fontSize: pinFontSize+"px"}).width;
-			constr.push(new mxConnectionConstraint(new mxPoint(pinX / w, 0), false, "", 0, this.calcTopY(pinX)+txtLength));
+			constr.push(newConnectionConstraint(pinX,0,w,h,0,this.calcTopY(pinX)+txtLength));
 		}
 		pinX += spacing;
 	});
 	spacing = w / (bottomPins.length + 1)
 	pinX = spacing;
 	bottomPins.forEach((p) => {
-		constr.push(new mxConnectionConstraint(new mxPoint(pinX / w, 1), false, "", 0, 0));
-		constr.push(new mxConnectionConstraint(new mxPoint(pinX / w, 1), false, "", 0, this.calcBottomY(pinX)-h));
+		constr.push(newConnectionConstraint(pinX,h,w,h,0,0));
+		constr.push(newConnectionConstraint(pinX,h,w,h,0,this.calcBottomY(pinX)-h));
+		constr.push(new mxConnectionConstraint(new mxPoint(Math.round(pinX / w), 1), false, "", 0, 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(Math.round(pinX / w), 1), false, "", 0, Math.round(this.calcBottomY(pinX)-h)));
 		if (p.name) {
 			var txtLength = padding;
 			if (p.clock) {
 				txtLength += type_size/4;
 			}
 			txtLength += calculateSize.default(p.name, {font: this.style.fontFamily, fontSize: pinFontSize+"px"}).width;
-			constr.push(new mxConnectionConstraint(new mxPoint(pinX / w,1), false, "", 0, this.calcBottomY(pinX)-txtLength-h));
+			constr.push(newConnectionConstraint(pinX,h,w,h,0,this.calcBottomY(pinX)-h-txtLength));
 		}
 		pinX += spacing;
 	});
