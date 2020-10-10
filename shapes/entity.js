@@ -188,25 +188,25 @@ mxShapeRTLEntity.prototype.paintBackground = function (c, x, y, w, h) {
 
 	switch (kind) {
 		case 'mux':
-			this.calcTopY = function (x) { return (x - padding)*0.75 + padding }
+			this.calcTopY = function (x) { return Math.round((x - padding) * (0.2 * h - padding) / (w - 2 * padding)); }
 			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
 			break;
 		case 'combinational':
-			this.calcTopY = function (x) { return h / 2 - ((h - 2 * padding) / 2) / ((w - 2 * padding) / 2) * Math.sqrt(Math.pow((w - 2 * padding) / 2, 2) - Math.pow(x - w / 2, 2)); }
+			this.calcTopY = function (x) { return Math.round(h / 2 - ((h - 2 * padding) / 2) / ((w - 2 * padding) / 2) * Math.sqrt(Math.pow((w - 2 * padding) / 2, 2) - Math.pow(x - w / 2, 2))); }
 			this.calcBottomY = function (x) { return h - this.calcTopY(x); }
-			this.calcLeftX = function (y) { return w / 2 - ((w - 2 * padding) / 2) / ((h - 2 * padding) / 2) * Math.sqrt(Math.pow((h - 2 * padding) / 2, 2) - Math.pow(y - h / 2, 2)); }
+			this.calcLeftX = function (y) { return Math.round(w / 2 - ((w - 2 * padding) / 2) / ((h - 2 * padding) / 2) * Math.sqrt(Math.pow((h - 2 * padding) / 2, 2) - Math.pow(y - h / 2, 2))); }
 			this.calcRightX = function (y) { return w - this.calcLeftX(y); }
 			break;
 		case 'demux':
-			this.calcTopY = function (x) { return (x - padding) * (-(0.2 * h - padding) / (w - 2 * padding)) + 0.2 * h }
+			this.calcTopY = function (x) { return Math.round((x - padding) * (-(0.2 * h - padding) / (w - 2 * padding)) + 0.2 * h); }
 			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
 			break;
 		case 'crossbar':
 			this.calcTopY = function (x) {
 				if (x < w / 2) {
-					return (x - padding) * (0.4 * h - padding) / (w - 2 * padding) + padding
+					return Math.round((x - padding) * (0.4 * h - padding) / (w - 2 * padding) + padding);
 				} else {
-					return (x - padding) * (-(0.4 * h - padding) / (w - 2 * padding)) + 0.4 * h
+					return Math.round((x - padding) * (-(0.4 * h - padding) / (w - 2 * padding)) + 0.4 * h);
 				}
 			}
 			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
