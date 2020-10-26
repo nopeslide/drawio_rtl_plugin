@@ -1,0 +1,41 @@
+{
+	"name": "vscode-drawio-plugin-rtl",
+	"displayName": "Draw.io Integration: RTL plugin",
+	"description": "RTL plugin for Draw.io Integration",
+	"version": "0.0.0",
+	"license": "GPL-3.0",
+	"publisher": "nopeslide",
+	"repository": "https://github.com/nopeslide/drawio_rtl_plugin",
+	"readme": "./README.md",
+	"icon": "doc/logo.drawio.png",
+	"engines": {
+		"vscode": "^1.34.0"
+	},
+	"categories": [
+		"Visualization"
+	],
+	"activationEvents": [],
+	"main": "dist/vscode_extension.js",
+	"contributes": {},
+	"scripts": {
+		"vscode:prepublish": "npm run build",
+		"vscode:package": "npm run build && vsce package",
+		"webpack": "webpack --mode production",
+		"dependencies": "cd ../drawio_desktop && npm run build",
+		"build": "npm run webpack"
+	},
+	"devDependencies": {
+		"@types/node": "^14.11.10",
+		"@types/vscode": "^1.34.0",
+		"@typescript-eslint/eslint-plugin": "^4.0.0",
+		"@typescript-eslint/parser": "^4.4.1",
+		"eslint": "^7.1.0",
+		"raw-loader": "^4.0.2",
+		"ts-loader": "^8.0.5",
+		"typescript": "^4.0.2",
+		"vsce": "^1.81.1",
+		"webpack": "^5.1.3",
+		"webpack-cli": "^4.0.0"
+	},
+	"isDrawioExtension": true
+}

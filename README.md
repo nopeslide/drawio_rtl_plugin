@@ -1,30 +1,38 @@
-# drawio_rtl_plugin
+# Draw.io RTL Plugin
 
-![overview](doc/overview.png)
+This draw.io plugins provides custom elements for RTL diagrams:
 
-## Online Demo
-[Online Demo](https://nopeslide.github.io/drawio/?p=rtl)
+* basic gates
+* bus
+* sequential logic
+* combinational logic
+* datastructure symbols
+* connectable edges
 
-## Installation
+configurable via properties.
 
-* clone repository
 
-* start draw.io desktop
-* click on `Extras` , then `Plugins...`
-![extras/plugins](doc/drawio_extras.png)
+## Overview
 
-* click `Add`
-![extras/plugins/add](doc/drawio_plugin_add.png)
+![](/doc/overview.dio.png)
 
-* enter path to cloned git as `file://` uri and append `/build/rtl.js` and click `Add`
-![extras/plugins/add/path](doc/drawio_plugin_path.png)
+<!-- ## Online Demo -->
+<!-- [Online Demo](https://nopeslide.github.io/drawio/?p=rtl) -->
 
-* check path and click `Apply`
-![extras/plugins/apply](doc/drawio_apply.png)
+## Usage
 
-* confirm dialog and restart draw.io
-![restart drawio](doc/drawio_restart.png)
+* Just edit the properties of a node and it will be redrawn with the new options
 
-* if the RTL libraray does not appear on the left side (last entry)
-  * check plugin dialog if path was saved
-    * if not, remove the directory `~/.config/draw.io` und install again
+<!-- ![](/doc/demo.gif) -->
+
+
+## Draw.io Desktop
+
+See
+[drawio_desktop/README.md](./drawio_desktop/README.md)
+for the draw.io desktop plugin.
+
+## Vscode 
+See
+[vscode/README.md](./vscode/README.md)
+for the vscode extension.

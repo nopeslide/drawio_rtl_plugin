@@ -1,4 +1,4 @@
-var calculateSize = require("calculate-size");
+import calculateSize from "calculate-size";
 
 //**********************************************************************************************************************************************************
 //Entity
@@ -145,7 +145,7 @@ mxShapeRTLEntity.prototype.calcBottomY = function (x) { return h - padding; }
 mxShapeRTLEntity.prototype.calcLeftX = function (y) { return padding; }
 mxShapeRTLEntity.prototype.calcRightX = function (y) { return w - padding; }
 
-mxShapeRTLEntity.prototype.paintBackground = function (c, x, y, w, h) {
+mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 	window.c = c;
 	window.t = this;
 	c.translate(x, y);
@@ -267,8 +267,8 @@ mxShapeRTLEntity.prototype.paintBackground = function (c, x, y, w, h) {
 
 	const fontFamily = this.style.fontFamily;
 	const fillColor  = this.style.fillColor;
-	spacing = Math.round(h / (leftPins.length + 1) / pinSnap) * pinSnap;
-	pinY = spacing;
+	let spacing = Math.round(h / (leftPins.length + 1) / pinSnap) * pinSnap;
+	let pinY = spacing;
 	leftPins.forEach((p) => {
 		drawPin(p, 0, pinY, 0, this.calcLeftX(pinY), type_size, drawPins, fontFamily, pinFontSize, fillColor);
 		pinY += spacing;
@@ -282,7 +282,7 @@ mxShapeRTLEntity.prototype.paintBackground = function (c, x, y, w, h) {
 	});
 
 	spacing = Math.round(w / (topPins.length + 1) / pinSnap) * pinSnap;
-	pinX = spacing;
+	let pinX = spacing;
 	topPins.forEach((p) => {
 		drawPin(p, pinX, 0, 90, this.calcTopY(pinX), type_size, drawPins, fontFamily, pinFontSize, fillColor);
 		pinX += spacing;
@@ -653,8 +653,8 @@ mxShapeRTLEntity.prototype.getConstraints = function (style, w, h) {
 	var pinSnap = mxUtils.getValue(this.style, 'pinSnap', 10);
 
 
-	spacing = Math.round(h / (leftPins.length + 1) / pinSnap) * pinSnap;
-	pinY = spacing;
+	let spacing = Math.round(h / (leftPins.length + 1) / pinSnap) * pinSnap;
+	let pinY = spacing;
 	leftPins.forEach((p) => {
 		constr.push(newConnectionConstraint(0,pinY,w,h,0,0));
 		constr.push(newConnectionConstraint(0,pinY,w,h,this.calcLeftX(pinY),0));
@@ -684,7 +684,7 @@ mxShapeRTLEntity.prototype.getConstraints = function (style, w, h) {
 		pinY += spacing;
 	});
 	spacing = Math.round(w / (topPins.length + 1) / pinSnap) * pinSnap;
-	pinX = spacing;
+	let pinX = spacing;
 	topPins.forEach((p) => {
 		constr.push(newConnectionConstraint(pinX,0,w,h,0,0));
 		constr.push(newConnectionConstraint(pinX,0,w,h,0,this.calcTopY(pinX)));

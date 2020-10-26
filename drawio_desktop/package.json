@@ -1,0 +1,21 @@
+{
+	"name": "drawio-plugin-rtl",
+	"displayName": "Draw.io: RTL plugin",
+	"description": "RTL plugin for Draw.io Desktop",
+	"version": "0.0.0",
+	"license": "GPL-3.0",
+	"publisher": "nopeslide",
+	"repository": "https://github.com/nopeslide/drawio_rtl_plugin",
+	"readme": "./README.md",
+	"scripts": {
+		"webpack:production": "webpack --mode production",
+		"webpack:development": "webpack --mode development",
+		"build": "npm run webpack:production",
+		"dev": "npm run webpack:development"
+	},
+	"devDependencies": {
+		"calculate-size": "^1.1.1",
+		"webpack": "^5.2.0",
+		"webpack-cli": "^4.1.0"
+	}
+}
