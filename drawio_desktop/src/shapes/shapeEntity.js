@@ -60,10 +60,14 @@ mxShapeRTLEntity.prototype.customProperties = [
 	},
 	{ name: 'type_size', dispName: 'Symbol size', type: 'int', min: 1, max: 1000, defVal: 30 },
 	{ name: 'pinSnap', dispName: 'Pin snap size', type: 'int', min: 1, max: 1000, defVal: 10 },
-	{ name: 'left', dispName: 'Ports left', type: 'string', defVal: "3" },
-	{ name: 'right', dispName: 'Ports right', type: 'string', defVal: "2" },
-	{ name: 'top', dispName: 'Ports top', type: 'string', defVal: "1" },
-	{ name: 'bottom', dispName: 'Ports bottom', type: 'string', defVal: "1" },
+	{ name: 'left', dispName: 'Ports left', type: 'auto', defVal: 3, dependentProps: ['leftArr'] },
+	{ name: 'leftArr', dispName: 'Ports left Array', type: 'staticArr', subType: 'string', sizeProperty: 'left', subDefVal: '', defVal: ',,' },
+	{ name: 'right', dispName: 'Ports right', type: 'auto', defVal: 2 },
+	{ name: 'rightArr', dispName: 'Ports right Array', type: 'staticArr', subType: 'string', sizeProperty: 'right', subDefVal: '', defVal: ',' },
+	{ name: 'top', dispName: 'Ports top', type: 'auto', defVal: 1 },
+	{ name: 'topArr', dispName: 'Ports top Array', type: 'staticArr', subType: 'string', sizeProperty: 'top', subDefVal: '', defVal: '' },
+	{ name: 'bottom', dispName: 'Ports bottom', type: 'auto', defVal: 1 },
+	{ name: 'bottomArr', dispName: 'Ports bottom Array', type: 'staticArr', subType: 'string', sizeProperty: 'bottom', subDefVal: '', defVal: ''},
 	{ name: 'drawPins', dispName: 'Draw Pins', type: 'bool', defVal: false },
 	{ name: 'pinFontSize', dispName: 'Pin Fontsize', type: 'int', min: 1, max: 1000, defVal: 12 }
 ];
@@ -74,71 +78,81 @@ mxShapeRTLEntity.prototype.customProperties = [
 * Paints the vertex shape.
 */
 
-function parsePinString(string) {
+function parsePinStyle(string) {
+	var tmp = string.split(":");
+	var pin = { name: tmp[0]};
+	pin.draw  = true;
+	pin.clock = false;
+	pin.neg   = false;
+	pin.in    = false;
+	pin.out   = false;
+	pin.inout = false;
+	pin.notConnected = false;
+	for( var i = 1; i < tmp.length; i++) {
+		switch(tmp[i]) {
+			case "no":
+			case "np":
+			case "nopin":
+				pin.draw = false;
+				break;
+			case "nc":
+				pin.notConnected = true;
+				break;
+			case "n":
+			case "neg":
+			case "not":
+				pin.neg = true;
+				break;
+			case "c":
+			case "clk":
+			case "clock":
+				pin.clock = true;
+				break;
+			case "nclk":
+			case "nclock":
+				pin.clock = true;
+				pin.neg = true;
+				break;
+			case "i":
+			case "in":
+				pin.in  = true;
+				pin.out = false;
+				break;
+			case "o":
+			case "out":
+				pin.in  = false;
+				pin.out = true;
+				break;
+			case "io":
+			case "inout":
+				pin.in  = false;
+				pin.out = false;
+				pin.inout = true;
+				break;
+		}
+	}
+	return pin;
+}
+
+
+function parsePins(pinString, pinArray) {
 	var res = [];
-	if (String(string).indexOf(",") != -1 || isNaN(parseInt(string))) {
-		string.split(",").forEach(function (kv) {
-			var tmp = kv.split(":");
-			var pin = { name: tmp[0]};
-			pin.draw  = true;
-			pin.clock = false;
-			pin.neg   = false;
-			pin.in    = false;
-			pin.out   = false;
-			pin.inout = false;
-			pin.notConnected = false;
-			for( var i = 1; i < tmp.length; i++) {
-				switch(tmp[i]) {
-					case "no":
-					case "np":
-					case "nopin":
-						pin.draw = false;
-						break;
-					case "nc":
-						pin.notConnected = true;
-						break;
-					case "n":
-					case "neg":
-					case "not":
-						pin.neg = true;
-						break;
-					case "c":
-					case "clk":
-					case "clock":
-						pin.clock = true;
-						break;
-					case "nclk":
-					case "nclock":
-						pin.clock = true;
-						pin.neg = true;
-						break;
-					case "i":
-					case "in":
-						pin.in  = true;
-						pin.out = false;
-						break;
-					case "o":
-					case "out":
-						pin.in  = false;
-						pin.out = true;
-						break;
-					case "io":
-					case "inout":
-						pin.in  = false;
-						pin.out = false;
-						pin.inout = true;
-						break;
-				}
-			}
-			res.push(pin);
+	if (String(pinString).indexOf(",") != -1 || isNaN(parseInt(pinString))) {
+		pinString.split(",").forEach(function (pinStyle) {
+			res.push(parsePinStyle(pinStyle));
 		});
 	} else {
-		for (var i = 0; i < parseInt(string); i++) {
-			res.push({ name: "", draw:true });
+		for (var i = 0; i < parseInt(pinString); i++) {
+			if (i < pinArray.length) {
+				res.push(parsePinStyle(pinArray[i]));
+			} else {
+				res.push(parsePinStyle(""));
+			}
 		}
 	}
 	return res;
 }
+
 
 mxShapeRTLEntity.prototype.calcTopY = function (x) { return padding; }
 mxShapeRTLEntity.prototype.calcBottomY = function (x) { return h - padding; }
@@ -149,10 +163,10 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 	window.c = c;
 	window.t = this;
 	c.translate(x, y);
-	var leftPins = parsePinString(mxUtils.getValue(this.style, 'left', '3'));
-	var rightPins = parsePinString(mxUtils.getValue(this.style, 'right', '2'));
-	var topPins = parsePinString(mxUtils.getValue(this.style, 'top', '1'));
-	var bottomPins = parsePinString(mxUtils.getValue(this.style, 'bottom', '1'));
+	var leftPins = parsePins(mxUtils.getValue(this.style, 'left', 3), mxUtils.getValue(this.style, 'leftArr', ',,').split(','));
+	var rightPins = parsePins(mxUtils.getValue(this.style, 'right', 2), mxUtils.getValue(this.style, 'rightArr', ',').split(','));
+	var topPins = parsePins(mxUtils.getValue(this.style, 'top', 1), mxUtils.getValue(this.style, 'topArr', '').split(','));
+	var bottomPins = parsePins(mxUtils.getValue(this.style, 'bottom', 1), mxUtils.getValue(this.style, 'bottomArr', '').split(','));
 	var pinSnap = mxUtils.getValue(this.style, 'pinSnap', 10);
 	var type = mxUtils.getValue(this.style, 'type', 'none');
 	var kind = mxUtils.getValue(this.style, 'kind', 'sequential');
@@ -641,10 +655,10 @@ function newConnectionConstraint(x, y, w, h, ox, oy) {
 
 mxShapeRTLEntity.prototype.getConstraints = function (style, w, h) {
 	var constr = [];
-	var leftPins = parsePinString(mxUtils.getValue(this.style, 'left', '3'));
-	var rightPins = parsePinString(mxUtils.getValue(this.style, 'right', '2'));
-	var topPins = parsePinString(mxUtils.getValue(this.style, 'top', '1'));
-	var bottomPins = parsePinString(mxUtils.getValue(this.style, 'bottom', '1'));
+	var leftPins = parsePins(mxUtils.getValue(this.style, 'left', ''), mxUtils.getValue(this.style, 'leftArr', ''));
+	var rightPins = parsePins(mxUtils.getValue(this.style, 'right', ''), mxUtils.getValue(this.style, 'rightArr', ''));
+	var topPins = parsePins(mxUtils.getValue(this.style, 'top', ''), mxUtils.getValue(this.style, 'topArr', ''));
+	var bottomPins = parsePins(mxUtils.getValue(this.style, 'bottom', ''), mxUtils.getValue(this.style, 'bottomArr', ''));
 	var pinFontSize = parseFloat(mxUtils.getValue(this.style, 'pinFontSize', '12'));
 	var dir = mxUtils.getValue(this.style, 'direction', 'east');
 	var type_size = mxUtils.getValue(this.style, 'type_size', '30');
