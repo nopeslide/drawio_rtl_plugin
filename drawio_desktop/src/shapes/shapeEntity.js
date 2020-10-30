@@ -655,10 +655,10 @@ function newConnectionConstraint(x, y, w, h, ox, oy) {
 
 mxShapeRTLEntity.prototype.getConstraints = function (style, w, h) {
 	var constr = [];
-	var leftPins = parsePins(mxUtils.getValue(this.style, 'left', ''), mxUtils.getValue(this.style, 'leftArr', ''));
-	var rightPins = parsePins(mxUtils.getValue(this.style, 'right', ''), mxUtils.getValue(this.style, 'rightArr', ''));
-	var topPins = parsePins(mxUtils.getValue(this.style, 'top', ''), mxUtils.getValue(this.style, 'topArr', ''));
-	var bottomPins = parsePins(mxUtils.getValue(this.style, 'bottom', ''), mxUtils.getValue(this.style, 'bottomArr', ''));
+	var leftPins = parsePins(mxUtils.getValue(this.style, 'left', ''), mxUtils.getValue(this.style, 'leftArr', '').split(','));
+	var rightPins = parsePins(mxUtils.getValue(this.style, 'right', ''), mxUtils.getValue(this.style, 'rightArr', '').split(','));
+	var topPins = parsePins(mxUtils.getValue(this.style, 'top', ''), mxUtils.getValue(this.style, 'topArr', '').split(','));
+	var bottomPins = parsePins(mxUtils.getValue(this.style, 'bottom', ''), mxUtils.getValue(this.style, 'bottomArr', '').split(','));
 	var pinFontSize = parseFloat(mxUtils.getValue(this.style, 'pinFontSize', '12'));
 	var dir = mxUtils.getValue(this.style, 'direction', 'east');
 	var type_size = mxUtils.getValue(this.style, 'type_size', '30');
