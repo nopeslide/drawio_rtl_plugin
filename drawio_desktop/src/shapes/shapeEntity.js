@@ -60,14 +60,50 @@ mxShapeRTLEntity.prototype.customProperties = [
 	},
 	{ name: 'type_size', dispName: 'Symbol size', type: 'int', min: 1, max: 1000, defVal: 30 },
 	{ name: 'pinSnap', dispName: 'Pin snap size', type: 'int', min: 1, max: 1000, defVal: 10 },
+	{ name: 'leftRot', dispName: 'Ports left label Rotation', type: 'int', min: 0, max: 360, defVal: 0 },
+	{
+		name: 'leftAnchor', dispName: 'Ports left label Anchor', type: 'enum', defVal: mxConstants.ALIGN_LEFT,
+		enumList: [
+			{ val: mxConstants.ALIGN_LEFT, dispName: 'Left' },
+			{ val: mxConstants.ALIGN_MIDDLE, dispName: 'Middle' },
+			{ val: mxConstants.ALIGN_RIGHT, dispName: 'Right' }
+		]
+	},
 	{ name: 'left', dispName: 'Ports left', type: 'auto', defVal: 3, dependentProps: ['leftArr'] },
 	{ name: 'leftArr', dispName: 'Ports left Array', type: 'staticArr', subType: 'string', sizeProperty: 'left', subDefVal: '', defVal: ',,' },
+	{ name: 'rightRot', dispName: 'Ports right label Rotation', type: 'int', min: 0, max: 360, defVal: 180 },
+	{
+		name: 'rightAnchor', dispName: 'Ports right label Anchor', type: 'enum', defVal: mxConstants.ALIGN_RIGHT,
+		enumList: [
+			{ val: mxConstants.ALIGN_LEFT, dispName: 'Left' },
+			{ val: mxConstants.ALIGN_MIDDLE, dispName: 'Middle' },
+			{ val: mxConstants.ALIGN_RIGHT, dispName: 'Right' }
+		]
+	},
 	{ name: 'right', dispName: 'Ports right', type: 'auto', defVal: 2 },
 	{ name: 'rightArr', dispName: 'Ports right Array', type: 'staticArr', subType: 'string', sizeProperty: 'right', subDefVal: '', defVal: ',' },
+	{ name: 'topRot', dispName: 'Ports top label Rotation', type: 'int', min: 0, max: 360, defVal: 0 },
+	{
+		name: 'topAnchor', dispName: 'Ports top label Anchor', type: 'enum', defVal: mxConstants.ALIGN_LEFT,
+		enumList: [
+			{ val: mxConstants.ALIGN_LEFT, dispName: 'Left' },
+			{ val: mxConstants.ALIGN_MIDDLE, dispName: 'Middle' },
+			{ val: mxConstants.ALIGN_RIGHT, dispName: 'Right' }
+		]
+	},
 	{ name: 'top', dispName: 'Ports top', type: 'auto', defVal: 1 },
 	{ name: 'topArr', dispName: 'Ports top Array', type: 'staticArr', subType: 'string', sizeProperty: 'top', subDefVal: '', defVal: '' },
+	{ name: 'bottomRot', dispName: 'Ports bottom label Rotation', type: 'int', min: 0, max: 360, defVal: 0 },
+	{
+		name: 'bottomAnchor', dispName: 'Ports bottom label Anchor', type: 'enum', defVal: mxConstants.ALIGN_LEFT,
+		enumList: [
+			{ val: mxConstants.ALIGN_LEFT, dispName: 'Left' },
+			{ val: mxConstants.ALIGN_MIDDLE, dispName: 'Middle' },
+			{ val: mxConstants.ALIGN_RIGHT, dispName: 'Right' }
+		]
+	},
 	{ name: 'bottom', dispName: 'Ports bottom', type: 'auto', defVal: 1 },
-	{ name: 'bottomArr', dispName: 'Ports bottom Array', type: 'staticArr', subType: 'string', sizeProperty: 'bottom', subDefVal: '', defVal: ''},
+	{ name: 'bottomArr', dispName: 'Ports bottom Array', type: 'staticArr', subType: 'string', sizeProperty: 'bottom', subDefVal: '', defVal: '' },
 	{ name: 'drawPins', dispName: 'Draw Pins', type: 'bool', defVal: false },
 	{ name: 'pinFontSize', dispName: 'Pin Fontsize', type: 'int', min: 1, max: 1000, defVal: 12 }
 ];
@@ -167,6 +203,14 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 	var rightPins = parsePins(mxUtils.getValue(this.style, 'right', 2), mxUtils.getValue(this.style, 'rightArr', ',').split(','));
 	var topPins = parsePins(mxUtils.getValue(this.style, 'top', 1), mxUtils.getValue(this.style, 'topArr', '').split(','));
 	var bottomPins = parsePins(mxUtils.getValue(this.style, 'bottom', 1), mxUtils.getValue(this.style, 'bottomArr', '').split(','));
+	var leftRot = parseInt(mxUtils.getValue(this.style, 'leftRot', 0));
+	var rightRot = parseInt(mxUtils.getValue(this.style, 'rightRot', 180));
+	var topRot = parseInt(mxUtils.getValue(this.style, 'topRot', 0));
+	var bottomRot = parseInt(mxUtils.getValue(this.style, 'bottomRot', 0));
+	var leftAnchor = mxUtils.getValue(this.style, 'leftAnchor', mxConstants.ALIGN_LEFT);
+	var rightAnchor = mxUtils.getValue(this.style, 'rightAnchor', mxConstants.ALIGN_RIGHT);
+	var topAnchor = mxUtils.getValue(this.style, 'topAnchor', mxConstants.ALIGN_LEFT);
+	var bottomAnchor = mxUtils.getValue(this.style, 'bottomAnchor', mxConstants.ALIGN_LEFT);
 	var pinSnap = mxUtils.getValue(this.style, 'pinSnap', 10);
 	var type = mxUtils.getValue(this.style, 'type', 'none');
 	var kind = mxUtils.getValue(this.style, 'kind', 'sequential');
@@ -284,28 +328,28 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 	let spacing = Math.round(h / (leftPins.length + 1) / pinSnap) * pinSnap;
 	let pinY = spacing;
 	leftPins.forEach((p) => {
-		drawPin(p, 0, pinY, 0, this.calcLeftX(pinY), type_size, drawPins, fontFamily, pinFontSize, fillColor);
+		drawPin(p, 0, pinY, 0, leftAnchor, leftRot, this.calcLeftX(pinY), type_size, drawPins, fontFamily, pinFontSize, fillColor);
 		pinY += spacing;
 	});
 
 	spacing = Math.round(h / (rightPins.length + 1) / pinSnap) * pinSnap;
 	pinY = spacing;
 	rightPins.forEach((p) => {
-		drawPin(p, w, pinY, 180, w - this.calcRightX(pinY), type_size, drawPins, fontFamily, pinFontSize, fillColor);
+		drawPin(p, w, pinY, 180, rightAnchor, rightRot, w - this.calcRightX(pinY), type_size, drawPins, fontFamily, pinFontSize, fillColor);
 		pinY += spacing;
 	});
 
 	spacing = Math.round(w / (topPins.length + 1) / pinSnap) * pinSnap;
 	let pinX = spacing;
 	topPins.forEach((p) => {
-		drawPin(p, pinX, 0, 90, this.calcTopY(pinX), type_size, drawPins, fontFamily, pinFontSize, fillColor);
+		drawPin(p, pinX, 0, 90, topAnchor, topRot, this.calcTopY(pinX), type_size, drawPins, fontFamily, pinFontSize, fillColor);
 		pinX += spacing;
 	});
 
 	spacing = Math.round(w / (bottomPins.length + 1) / pinSnap) * pinSnap;
 	pinX = spacing;
 	bottomPins.forEach((p) => {
-		drawPin(p, pinX, h, 270, h - this.calcBottomY(pinX), type_size, drawPins, fontFamily, pinFontSize, fillColor);
+		drawPin(p, pinX, h, 270, bottomAnchor, bottomRot, h - this.calcBottomY(pinX), type_size, drawPins, fontFamily, pinFontSize, fillColor);
 		pinX += spacing;
 	});
 
@@ -358,8 +402,9 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 	};
 };
 
-function drawPin(pin, x, y, rot, padding, size, drawPins, fontFamily, fontSize, fillColor) {
+function drawPin(pin, x, y, rot, anchor, labelRot, padding, size, drawPins, fontFamily, fontSize, fillColor) {
 	c.translate(x, y);
+
 	c.rotate(rot, 0, 0, 0, 0);
 	var txtOffset = 0;
 	if (pin.draw && drawPins) {
@@ -370,6 +415,7 @@ function drawPin(pin, x, y, rot, padding, size, drawPins, fontFamily, fontSize, 
 		} else {
 			c.lineTo(padding, 0);
 		}
+		c.close();
 		c.stroke();
 	}
 	if (pin.clock) {
@@ -427,27 +473,26 @@ function drawPin(pin, x, y, rot, padding, size, drawPins, fontFamily, fontSize, 
 		c.lineTo(0 + size / 8, 0 + size / 8);
 		c.moveTo(0 - size / 8, 0 + size / 8);
 		c.lineTo(0 + size / 8, 0 - size / 8);
+		c.close();
 		c.stroke();
 	}
+	
 	c.setFontFamily(fontFamily);
 	c.setFontSize(fontSize);
-	switch (rot) {
-		case 0:
-			c.text(5 + padding + txtOffset, 0, 0, 0, pin.name, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-			break;
-		case 180:
-			c.text(5 + padding + txtOffset, 0, 0, 0, pin.name, mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 180);
-			break;
-		case 90:
-			c.text(5 + padding + txtOffset, 0, 0, 0, pin.name, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-			break;
-		case 270:
-			c.text(5 + padding + txtOffset, 0, 0, 0, pin.name, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-			break;
+	let labelSize = calculateSize(pin.name, { font: fontFamily, fontSize: fontSize + "px" });
+	let labelX = 5 + padding + txtOffset;
+	let labelAnchorX = 0;
+	let labelY = 0;
+	if (anchor == mxConstants.ALIGN_MIDDLE) {
+		labelAnchorX += labelSize.width / 2;
+		labelX += 5;
 	}
+	c.rotate(labelRot, 0, 0, labelX, 0);
+	c.text(labelX - labelAnchorX, labelY, labelSize.width, 0, pin.name, anchor, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+	c.rotate(-labelRot, 0, 0, labelX, 0);
+	
 	c.rotate(-rot, 0, 0, 0, 0);
-	c.translate(-x, -y);
-	c.end();
+	c.translate(-x,-y);
 }
 
 function symbolRTLShiftReg(c, x, y, size) {
