@@ -1,7 +1,7 @@
 
 Sidebar.prototype.addRTLPalette = function () {
     this.addPaletteFunctions('rtl', 'RTL', true, [
-        this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#000000;strokeColor=none;noLabel=1;snapToPoint=1;perimeter=none;resizable=0;rotatable=0;', 5, 5, '', 'Junction point', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'junction', 'rtl ').join(' ')),
+        this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=strokeColor;strokeWidth=0;noLabel=1;snapToPoint=1;perimeter=none;resizable=0;rotatable=0;', 5, 5, '', 'Junction point', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'junction', 'rtl ').join(' ')),
         this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;html=1;strokeWidth=1;shape=mxgraph.rtl.abstract.entity;container=1;collapsible=0;kind=mux;drawPins=0;left=4;right=1;bottom=0;', 30, 100, '', 'Mux', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'entity', 'mux ').join(' ')),
         this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;html=1;strokeWidth=1;shape=mxgraph.rtl.abstract.entity;container=1;collapsible=0;kind=mux;drawPins=1;left=4;right=1;bottom=0;', 40, 100, '', 'Mux', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'entity', 'mux ').join(' ')),
         this.createVertexTemplateEntry('shadow=0;dashed=0;align=center;html=1;strokeWidth=1;shape=mxgraph.rtl.abstract.entity;container=1;collapsible=0;kind=demux;drawPins=0;left=1;right=4;bottom=0;', 30, 100, '', 'DeMux', null, null, this.getTagsForStencil('mxgraph.rtl.abstract', 'entity', 'demux ').join(' ')),
