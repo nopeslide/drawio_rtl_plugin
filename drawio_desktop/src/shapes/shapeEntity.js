@@ -30,7 +30,8 @@ mxShapeRTLEntity.prototype.customProperties = [
 			{ val: 'combinational', dispName: 'Comb. Logic' },
 			{ val: 'mux', dispName: 'Mux' },
 			{ val: 'demux', dispName: 'Demux' },
-			{ val: 'crossbar', dispName: 'Crossbar' }
+			{ val: 'crossbar', dispName: 'Crossbar' },
+			{ val: 'port', dispName: 'Port' }
 		]
 	},
 	{
@@ -272,6 +273,7 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 			}
 			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
 			break;
+		case 'port':
 		case 'sequential':
 		default:
 			break;
@@ -315,6 +317,8 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 			c.lineTo(w / 2, this.calcBottomY(w / 2));
 			c.end();
 			c.stroke()
+			break;
+		case 'port':
 			break;
 		case 'sequential':
 		default:
