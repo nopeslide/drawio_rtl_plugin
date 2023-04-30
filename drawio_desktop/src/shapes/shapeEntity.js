@@ -173,6 +173,7 @@ function parsePinStyle(string) {
 
 function parsePins(pinString, pinArray) {
 	var res = [];
+	pinString = decodeURIComponent(pinString);
 	if (String(pinString).indexOf(",") != -1 || isNaN(parseInt(pinString))) {
 		pinString.split(",").forEach(function (pinStyle) {
 			res.push(parsePinStyle(pinStyle));
@@ -180,7 +181,7 @@ function parsePins(pinString, pinArray) {
 	} else {
 		for (var i = 0; i < parseInt(pinString); i++) {
 			if (i < pinArray.length) {
-				res.push(parsePinStyle(pinArray[i]));
+				res.push(parsePinStyle(decodeURIComponent(pinArray[i])));
 			} else {
 				res.push(parsePinStyle(""));
 			}
