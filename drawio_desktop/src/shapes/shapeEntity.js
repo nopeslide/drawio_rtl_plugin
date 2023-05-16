@@ -106,6 +106,7 @@ mxShapeRTLEntity.prototype.customProperties = [
 	{ name: 'bottom', dispName: 'Ports bottom', type: 'auto', defVal: 1 },
 	{ name: 'bottomArr', dispName: 'Ports bottom Array', type: 'staticArr', subType: 'string', sizeProperty: 'bottom', subDefVal: '', defVal: '' },
 	{ name: 'drawPins', dispName: 'Draw Pins', type: 'bool', defVal: false },
+	{ name: 'externalPins', dispName: 'External Pins', type: 'bool', defVal: false },
 	{ name: 'pinFontSize', dispName: 'Pin Fontsize', type: 'int', min: 1, max: 1000, defVal: 12 }
 ];
 
@@ -219,7 +220,8 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 	var type_loc = mxUtils.getValue(this.style, 'type_loc', 'topLeft');
 	var type_size = mxUtils.getValue(this.style, 'type_size', '30');
 	var drawPins = mxUtils.getValue(this.style, 'drawPins', false);
-	var padding = drawPins * 10;
+	var externalPins = mxUtils.getValue(this.style, 'externalPins', false);
+	var padding = (drawPins && !externalPins) * 10;
 	var fontSize = parseFloat(mxUtils.getValue(this.style, 'fontSize', '12'));
 	var pinFontSize = parseFloat(mxUtils.getValue(this.style, 'pinFontSize', '12'));
 	//c.setFontSize(fontSize * 0.5);
@@ -333,28 +335,28 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 	let spacing = Math.round(h / (leftPins.length + 1) / pinSnap) * pinSnap;
 	let pinY = spacing;
 	leftPins.forEach((p) => {
-		drawPin(p, 0, pinY, 0, leftAnchor, leftRot, this.calcLeftX(pinY), type_size, drawPins, fontFamily, pinFontSize, fillColor);
+		drawPin(p, 0, pinY, 0, leftAnchor, leftRot, this.calcLeftX(pinY), externalPins, type_size, drawPins, fontFamily, pinFontSize, fillColor);
 		pinY += spacing;
 	});
 
 	spacing = Math.round(h / (rightPins.length + 1) / pinSnap) * pinSnap;
 	pinY = spacing;
 	rightPins.forEach((p) => {
-		drawPin(p, w, pinY, 180, rightAnchor, rightRot, w - this.calcRightX(pinY), type_size, drawPins, fontFamily, pinFontSize, fillColor);
+		drawPin(p, w, pinY, 180, rightAnchor, rightRot, w - this.calcRightX(pinY), externalPins, type_size, drawPins, fontFamily, pinFontSize, fillColor);
 		pinY += spacing;
 	});
 
 	spacing = Math.round(w / (topPins.length + 1) / pinSnap) * pinSnap;
 	let pinX = spacing;
 	topPins.forEach((p) => {
-		drawPin(p, pinX, 0, 90, topAnchor, topRot, this.calcTopY(pinX), type_size, drawPins, fontFamily, pinFontSize, fillColor);
+		drawPin(p, pinX, 0, 90, topAnchor, topRot, this.calcTopY(pinX), externalPins, type_size, drawPins, fontFamily, pinFontSize, fillColor);
 		pinX += spacing;
 	});
 
 	spacing = Math.round(w / (bottomPins.length + 1) / pinSnap) * pinSnap;
 	pinX = spacing;
 	bottomPins.forEach((p) => {
-		drawPin(p, pinX, h, 270, bottomAnchor, bottomRot, h - this.calcBottomY(pinX), type_size, drawPins, fontFamily, pinFontSize, fillColor);
+		drawPin(p, pinX, h, 270, bottomAnchor, bottomRot, h - this.calcBottomY(pinX), externalPins, type_size, drawPins, fontFamily, pinFontSize, fillColor);
 		pinX += spacing;
 	});
 
@@ -407,14 +409,20 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 	};
 };
 
-function drawPin(pin, x, y, rot, anchor, labelRot, padding, size, drawPins, fontFamily, fontSize, fillColor) {
+function drawPin(pin, x, y, rot, anchor, labelRot, padding, external, size, drawPins, fontFamily, fontSize, fillColor) {
 	c.translate(x, y);
 
 	c.rotate(rot, 0, 0, 0, 0);
 	var txtOffset = 0;
+	var pinOffset = 0;
+
+	if (external) {
+		pinOffset -= 10;
+	}
+
 	if (pin.draw && drawPins) {
 		c.begin();
-		c.moveTo(0, 0);
+		c.moveTo(pinOffset, 0);
 		if (pin.neg) {
 			c.lineTo(padding - size / 6, 0);
 		} else {
@@ -473,12 +481,12 @@ function drawPin(pin, x, y, rot, anchor, labelRot, padding, size, drawPins, font
 		c.fillAndStroke();
 		c.setFillColor(fillColor);
 	}
-	if (pin.notConnected && pin.draw) {
+	if (pin.notConnected && pin.draw && drawPins) {
 		c.begin();
-		c.moveTo(0 - size / 8, 0 - size / 8);
-		c.lineTo(0 + size / 8, 0 + size / 8);
-		c.moveTo(0 - size / 8, 0 + size / 8);
-		c.lineTo(0 + size / 8, 0 - size / 8);
+		c.moveTo(pinOffset - size / 8, 0 - size / 8);
+		c.lineTo(pinOffset + size / 8, 0 + size / 8);
+		c.moveTo(pinOffset - size / 8, 0 + size / 8);
+		c.lineTo(pinOffset + size / 8, 0 - size / 8);
 		c.close();
 		c.stroke();
 	}
@@ -716,16 +724,18 @@ mxShapeRTLEntity.prototype.getConstraints = function (style, w, h) {
 	var dir = mxUtils.getValue(this.style, 'direction', 'east');
 	var type_size = mxUtils.getValue(this.style, 'type_size', '30');
 	var drawPins = mxUtils.getValue(this.style, 'drawPins', false);
-	var padding = 10 + (!drawPins) * 10;
+	var externalPins = mxUtils.getValue(this.style, 'externalPins', false);
+	var padding_label = 10 + (!drawPins || externalPins) * 10;
+	var padding_pin = (drawPins && externalPins) * 10;
 	var pinSnap = mxUtils.getValue(this.style, 'pinSnap', 10);
 
 	let spacing = Math.round(h / (leftPins.length + 1) / pinSnap) * pinSnap;
 	let pinY = spacing;
 	leftPins.forEach((p) => {
-		constr.push(newConnectionConstraint(0, pinY, w, h, 0, 0));
+		constr.push(newConnectionConstraint(0, pinY, w, h, -padding_pin, 0));
 		constr.push(newConnectionConstraint(0, pinY, w, h, this.calcLeftX(pinY), 0));
 		if (p.name) {
-			var txtLength = padding;
+			var txtLength = padding_label;
 			if (p.clock) {
 				txtLength += type_size / 4;
 			}
@@ -737,10 +747,10 @@ mxShapeRTLEntity.prototype.getConstraints = function (style, w, h) {
 	spacing = Math.round(h / (rightPins.length + 1) / pinSnap) * pinSnap;
 	pinY = spacing;
 	rightPins.forEach((p) => {
-		constr.push(newConnectionConstraint(w, pinY, w, h, 0, 0));
+		constr.push(newConnectionConstraint(w, pinY, w, h, padding_pin, 0));
 		constr.push(newConnectionConstraint(w, pinY, w, h, this.calcRightX(pinY) - w, 0));
 		if (p.name) {
-			var txtLength = padding;
+			var txtLength = padding_label;
 			if (p.clock) {
 				txtLength += type_size / 4;
 			}
@@ -752,10 +762,10 @@ mxShapeRTLEntity.prototype.getConstraints = function (style, w, h) {
 	spacing = Math.round(w / (topPins.length + 1) / pinSnap) * pinSnap;
 	let pinX = spacing;
 	topPins.forEach((p) => {
-		constr.push(newConnectionConstraint(pinX, 0, w, h, 0, 0));
+		constr.push(newConnectionConstraint(pinX, 0, w, h, 0, -padding_pin));
 		constr.push(newConnectionConstraint(pinX, 0, w, h, 0, this.calcTopY(pinX)));
 		if (p.name) {
-			var txtLength = padding;
+			var txtLength = padding_label;
 			if (p.clock) {
 				txtLength += type_size / 4;
 			}
@@ -767,10 +777,10 @@ mxShapeRTLEntity.prototype.getConstraints = function (style, w, h) {
 	spacing = Math.round(w / (bottomPins.length + 1) / pinSnap) * pinSnap;
 	pinX = spacing;
 	bottomPins.forEach((p) => {
-		constr.push(newConnectionConstraint(pinX, h, w, h, 0, 0));
+		constr.push(newConnectionConstraint(pinX, h, w, h, 0, padding_pin));
 		constr.push(newConnectionConstraint(pinX, h, w, h, 0, this.calcBottomY(pinX) - h));
 		if (p.name) {
-			var txtLength = padding;
+			var txtLength = padding_label;
 			if (p.clock) {
 				txtLength += type_size / 4;
 			}
