@@ -250,7 +250,7 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 
 	switch (kind) {
 		case 'mux':
-			this.calcTopY = function (x) { return Math.round((x - padding) * (0.2 * h - padding) / (w - 2 * padding)); }
+			this.calcTopY = function (x) { return Math.min(Math.round((x - padding) * (1/2) + padding), h/2 - padding); }
 			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
 			break;
 		case 'combinational':
@@ -260,15 +260,15 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 			this.calcRightX = function (y) { return w - this.calcLeftX(y); }
 			break;
 		case 'demux':
-			this.calcTopY = function (x) { return Math.round((x - padding) * (-(0.2 * h - padding) / (w - 2 * padding)) + 0.2 * h); }
+			this.calcTopY = function (x) { return Math.min(Math.round((x - padding) * (-1/2) + (w/2)), h/2 - padding); }
 			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
 			break;
 		case 'crossbar':
 			this.calcTopY = function (x) {
 				if (x < w / 2) {
-					return Math.round((x - padding) * (0.4 * h - padding) / (w - 2 * padding) + padding);
+					return Math.min(Math.round((x - padding) * (1/2) + padding), h/2 - padding);
 				} else {
-					return Math.round((x - padding) * (-(0.4 * h - padding) / (w - 2 * padding)) + 0.4 * h);
+					return Math.min(Math.round((x - padding) * (-1/2) + (w/2)), h/2 - padding);
 				}
 			}
 			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
