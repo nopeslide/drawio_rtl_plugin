@@ -299,6 +299,29 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 			}
 			this.calcBottomY = function(x) { return h - this.calcTopY(x) }
 			break;
+		case 'or':
+			this.calcTopY = function(x) {
+				const RX0 = w/2 - padding;
+				const RY0 = h/2 - padding;
+				console.log(x)
+				if (x < w / 2) {
+					return padding;
+				} else {
+					return h/2 - ellipse_y(x-w/2,RX0,RY0);
+				}
+			}
+			this.calcRightX = function(y) {
+				const RX0 = w/2 - padding;
+				const RY0 = h/2 - padding;
+				return w/2 + ellipse_x(h/2 - y,RX0,RY0);
+			}
+			this.calcLeftX = function(y) {
+				const RX0 = w/2 - padding;
+				const RY0 = h/2 - padding;
+				return w/2 + ellipse_x(h/2 - y,RX0,RY0);
+			}
+			this.calcBottomY = function(x) { return h - this.calcTopY(x) }
+			break;
 		case 'port':
 		case 'sequential':
 		default:
@@ -345,7 +368,6 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 			c.stroke()
 			break;
 		case 'and':
-			{
 				// proportions from
 				// drawio/src/main/webapp/stencils/electrical/logic_gates.xml 
 				//
@@ -353,22 +375,21 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 				// Y0  A--B
 				//     |   )
 				// Y1  E--D
-				const X0 = padding;
-				const X1 = w/2;
-				const Y0 = padding;
-				const Y1 = h - padding;
-				const RX0 = w/2 - padding;
-				const RY0 = h/2 - padding;
+				const and_X0 = padding;
+				const and_X1 = w/2;
+				const and_Y0 = padding;
+				const and_Y1 = h - padding;
+				const and_RX0 = w/2 - padding;
+				const and_RY0 = h/2 - padding;
 				c.begin();
-				c.moveTo(X0, Y0);
-				c.lineTo(X1, Y0);
-				c.arcTo(RX0, RY0, 0, 0, 1, X1, Y1 );
-				c.lineTo(X0, Y1);
+				c.moveTo(and_X0, and_Y0);
+				c.lineTo(and_X1, and_Y0);
+				c.arcTo(and_RX0, and_RY0, 0, 0, 1, and_X1, and_Y1 );
+				c.lineTo(and_X0, and_Y1);
 				c.close();
 				c.fillAndStroke();
 				break;
-			}
-		case 'or': {
+		case 'or':
 				// proportions from
 				// drawio/src/main/webapp/stencils/electrical/logic_gates.xml 
 				//
@@ -376,28 +397,27 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 				// Y0  A--B.
 				// Y1   )   C
 				// Y2  E--D'
-				const X0 = padding;
-				const X1 = (40-15)/65 * w;
-				const X2 = w-padding;
-				const Y0 = padding;
-				const Y1 = h/2;
-				const Y2 = h-padding;
-				const RX0 = 45/65*w - padding;
-				const RY0 = 50/60*h - padding;
-				const RX1 = 60/65*w - padding;
-				const RY1 = 60/60*h - padding;
+				const or_X0 = padding;
+				const or_X1 = (40-15)/65 * w;
+				const or_X2 = w-padding;
+				const or_Y0 = padding;
+				const or_Y1 = h/2;
+				const or_Y2 = h-padding;
+				const or_RX0 = 45/65*w - padding;
+				const or_RY0 = 50/60*h - padding;
+				const or_RX1 = 60/65*w - padding;
+				const or_RY1 = 60/60*h - padding;
 				c.begin();
-				c.moveTo(X0, Y0);
-				c.lineTo(X1, Y0);
-				c.arcTo(RX0, RY0, 0, 0, 1, X2, Y1 );
-				c.arcTo(RX0, RY0, 0, 0, 1, X1, Y2 );
-				c.lineTo(X1, Y2);
-				c.arcTo(RX1,RY1, 0, 0, 0, X0, Y0 );
+				c.moveTo(or_X0, or_Y0);
+				c.lineTo(or_X1, or_Y0);
+				c.arcTo(or_RX0, or_RY0, 0, 0, 1, or_X2, or_Y1 );
+				c.arcTo(or_RX0, or_RY0, 0, 0, 1, or_X1, or_Y2 );
+				c.lineTo(or_X1, or_Y2);
+				c.arcTo(or_RX1,or_RY1, 0, 0, 0, or_X0, or_Y0 );
 				c.close();
 				c.fillAndStroke();
 				break;
-			}
-		case 'xor': {
+		case 'xor':
 				// proportions from
 				// drawio/src/main/webapp/stencils/electrical/logic_gates.xml 
 				//
@@ -405,32 +425,31 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 				// Y0  F A--B.
 				// Y1   ) )   C
 				// Y2  G E--D'
-				const X0 = (10-15)/65*w + padding
-				const X1 = padding;
-				const X2 = (40-15)/65 * w;
-				const X3 = w-padding;
-				const Y0 = padding;
-				const Y1 = h/2;
-				const Y2 = h-padding;
-				const RX0 = 45/65*w - padding;
-				const RY0 = 50/60*h - padding;
-				const RX1 = 60/65*w - padding;
-				const RY1 = 60/60*h - padding;
+				const xor_X0 = (10-15)/65*w + padding
+				const xor_X1 = padding;
+				const xor_X2 = (40-15)/65 * w;
+				const xor_X3 = w-padding;
+				const xor_Y0 = padding;
+				const xor_Y1 = h/2;
+				const xor_Y2 = h-padding;
+				const xor_RX0 = 45/65*w - padding;
+				const xor_RY0 = 50/60*h - padding;
+				const xor_RX1 = 60/65*w - padding;
+				const xor_RY1 = 60/60*h - padding;
 				c.begin();
-				c.moveTo(X1, Y0);
-				c.lineTo(X2, Y0);
-				c.arcTo(RX0, RY0, 0, 0, 1, X3, Y1 );
-				c.arcTo(RX0, RY0, 0, 0, 1, X2, Y2 );
-				c.lineTo(X1, Y2);
-				c.arcTo(RX1,RY1, 0, 0, 0, X1, Y0 );
+				c.moveTo(xor_X1, xor_Y0);
+				c.lineTo(xor_X2, xor_Y0);
+				c.arcTo(xor_RX0, xor_RY0, 0, 0, 1, xor_X3, xor_Y1 );
+				c.arcTo(xor_RX0, xor_RY0, 0, 0, 1, xor_X2, xor_Y2 );
+				c.lineTo(xor_X1, xor_Y2);
+				c.arcTo(xor_RX1,xor_RY1, 0, 0, 0, xor_X1, xor_Y0 );
 				c.close();
 				c.fillAndStroke();
 				c.begin();
-				c.moveTo(X0,Y2);
-				c.arcTo(RX1,RY1, 0, 0, 0, X0, Y0 );
+				c.moveTo(xor_X0,xor_Y2);
+				c.arcTo(xor_RX1,xor_RY1, 0, 0, 0, xor_X0, xor_Y0 );
 				c.stroke();
 				break;
-		}
 		case 'port':
 			break;
 		case 'sequential':
