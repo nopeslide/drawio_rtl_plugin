@@ -1,5 +1,4 @@
 import calculateSize from "calculate-size";
-import {Bezier} from "bezier-js";
 
 //**********************************************************************************************************************************************************
 //Entity
@@ -254,6 +253,9 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 	this.calcLeftX = function (y) { return padding; }
 	this.calcRightX = function (y) { return w - padding; }
 
+	const ellipse_y = function(x,a,b) { return (b/a)*Math.sqrt(a**2-x**2); }
+	const ellipse_x = function(y,a,b) { return (a/b)*Math.sqrt(b**2-y**2); }
+
 	switch (kind) {
 		case 'mux':
 			this.calcTopY = function (x) { return Math.min(Math.round((x - padding) * (1/2) + padding), h/2 - padding); }
@@ -281,24 +283,21 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 			break;
 		case 'and':
 			this.calcTopY = function(x) {
+				const RX0 = w/2 - padding;
+				const RY0 = h/2 - padding;
+				console.log(x)
 				if (x < w / 2) {
 					return padding;
 				} else {
-					const b = new Bezier(w/2,padding, w-padding,padding, w-padding,h-padding, w/2,h-padding);
-					const intersects = b.intersects({ p1: {x:x, y:0}, p2: {x:x,y:h} });
-					const points = intersects.map(t => b.get(t));
-					const min = Math.round(Math.min(...points.map(p=>p.y)));
-					return min;
+					return h/2 - ellipse_y(x-w/2,RX0,RY0);
 				}
 			}
 			this.calcRightX = function(y) {
-					const b = new Bezier(w/2,padding, w-padding,padding, w-padding,h-padding, w/2,h-padding);
-					const intersects = b.intersects({ p1: {x:0, y:y}, p2: {x:w,y:y} });
-					const points = intersects.map(t => b.get(t));
-					const max = Math.round(Math.max(...points.map(p=>p.x)));
-					return max;
+				const RX0 = w/2 - padding;
+				const RY0 = h/2 - padding;
+				return w/2 + ellipse_x(h/2 - y,RX0,RY0);
 			}
-			this.calcBottom = function(x) { return h - this.calcTopY(x) }
+			this.calcBottomY = function(x) { return h - this.calcTopY(x) }
 			break;
 		case 'port':
 		case 'sequential':
