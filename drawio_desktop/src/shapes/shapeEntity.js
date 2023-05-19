@@ -32,6 +32,7 @@ mxShapeRTLEntity.prototype.customProperties = [
 			{ val: 'demux', dispName: 'Demux' },
 			{ val: 'crossbar', dispName: 'Crossbar' },
 			{ val: 'port', dispName: 'Port' },
+			{ val: 'buffer', dispName: 'buffer' },
 			{ val: 'and', dispName: 'AND' },
 			{ val: 'or', dispName: 'OR' },
 			{ val: 'xor', dispName: 'XOR' }
@@ -253,12 +254,70 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 	this.calcLeftX = function (y) { return padding; }
 	this.calcRightX = function (y) { return w - padding; }
 
-	const ellipse_y = function(x,a,b) { return (b/a)*Math.sqrt(a**2-x**2); }
-	const ellipse_x = function(y,a,b) { return (a/b)*Math.sqrt(b**2-y**2); }
+	const ellipse_y = function (x, a, b) { return (b / a) * Math.sqrt(a ** 2 - x ** 2); }
+	const ellipse_x = function (y, a, b) { return (a / b) * Math.sqrt(b ** 2 - y ** 2); }
+
+	// proportions from
+	// drawio/src/main/webapp/stencils/electrical/logic_gates.xml 
+	//
+	//    X0  X1 
+	// Y0  A--B
+	//     |   )
+	// Y1  E--D
+	const and_X0 = padding;
+	const and_X1 = w / 2;
+	const and_Y0 = padding;
+	const and_Y1 = h - padding;
+	const and_RX0 = w / 2 - padding;
+	const and_RY0 = h / 2 - padding;
+
+	// proportions from
+	// drawio/src/main/webapp/stencils/electrical/logic_gates.xml 
+	//
+	//    X0  X1 X2 
+	// Y0  A--B.
+	// Y1   )   C
+	// Y2  E--D'
+	const or_X0 = padding;
+	const or_X1 = (40 - 15) / 65 * w;
+	const or_X2 = w - padding;
+	const or_Y0 = padding;
+	const or_Y1 = h / 2;
+	const or_Y2 = h - padding;
+	const or_RX0 = 45 / 65 * (w - padding);
+	const or_RY0 = 50 / 60 * (h - padding);
+	const or_RX1 = 60 / 65 * (w - padding);
+	const or_RY1 = 60 / 60 * (h - padding);
+	// magic numbers are from an ellipses that fit the arc
+	// see doc/approximations.drawio
+	const or_MAGIC_0_W = 136 / 100 * (w - padding);
+	const or_MAGIC_0_H = 171 / 100 * (h - padding);
+	const or_MAGIC_1_OFFSET_X = 67 / 100 * (w - padding);
+	const or_MAGIC_1_W = 79 / 100 * (w - padding);
+	const or_MAGIC_1_H = 138 / 100 * (h - padding);
+
+	// proportions from
+	// drawio/src/main/webapp/stencils/electrical/logic_gates.xml 
+	//
+	//    X0 X1 X2 X3 
+	// Y0  F A--B.
+	// Y1   ) )   C
+	// Y2  G E--D'
+	const xor_X0 = (10 - 15) / 65 * w + padding
+	const xor_X1 = padding;
+	const xor_X2 = (40 - 15) / 65 * w;
+	const xor_X3 = w - padding;
+	const xor_Y0 = padding;
+	const xor_Y1 = h / 2;
+	const xor_Y2 = h - padding;
+	const xor_RX0 = 45 / 65 * (w - padding);
+	const xor_RY0 = 50 / 60 * (h - padding);
+	const xor_RX1 = 60 / 65 * (w - padding);
+	const xor_RY1 = 60 / 60 * (h - padding);
 
 	switch (kind) {
 		case 'mux':
-			this.calcTopY = function (x) { return Math.min(Math.round((x - padding) * (1/2) + padding), h/2 - padding); }
+			this.calcTopY = function (x) { return Math.min(Math.round((x - padding) * (1 / 2) + padding), h / 2 - padding); }
 			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
 			break;
 		case 'combinational':
@@ -268,59 +327,76 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 			this.calcRightX = function (y) { return w - this.calcLeftX(y); }
 			break;
 		case 'demux':
-			this.calcTopY = function (x) { return Math.min(Math.round((x - padding) * (-1/2) + (w/2)), h/2 - padding); }
+			this.calcTopY = function (x) { return Math.min(Math.round((x - padding) * (-1 / 2) + (w / 2)), h / 2 - padding); }
 			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
 			break;
 		case 'crossbar':
 			this.calcTopY = function (x) {
 				if (x < w / 2) {
-					return Math.min(Math.round((x - padding) * (1/2) + padding), h/2 - padding);
+					return Math.min(Math.round((x - padding) * (1 / 2) + padding), h / 2 - padding);
 				} else {
-					return Math.min(Math.round((x - padding) * (-1/2) + (w/2)), h/2 - padding);
+					return Math.min(Math.round((x - padding) * (-1 / 2) + (w / 2)), h / 2 - padding);
 				}
 			}
 			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
 			break;
+		case 'buffer': {
+			const dy = (h/2)-(padding);
+			const dx = (w-padding)-(padding);
+
+			this.calcTopY = function (x) {
+				return (dy/dx)*(x-padding)+padding;
+			}
+			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
+			this.calcRightX = function (y) {
+				if (y > h/2) {
+					y = h-y;
+				}
+				return (y-padding)*(dx/dy)+padding;
+			}
+			break;
+		}
 		case 'and':
-			this.calcTopY = function(x) {
-				const RX0 = w/2 - padding;
-				const RY0 = h/2 - padding;
+			this.calcTopY = function (x) {
 				console.log(x)
-				if (x < w / 2) {
+				if (x < and_X1) {
 					return padding;
 				} else {
-					return h/2 - ellipse_y(x-w/2,RX0,RY0);
+					return h / 2 - ellipse_y(x - and_X1, and_RX0, and_RY0);
 				}
 			}
-			this.calcRightX = function(y) {
-				const RX0 = w/2 - padding;
-				const RY0 = h/2 - padding;
-				return w/2 + ellipse_x(h/2 - y,RX0,RY0);
+			this.calcRightX = function (y) {
+				return and_X1 + ellipse_x(h / 2 - y, and_RX0, and_RY0);
 			}
-			this.calcBottomY = function(x) { return h - this.calcTopY(x) }
+			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
 			break;
 		case 'or':
-			this.calcTopY = function(x) {
-				const RX0 = w/2 - padding;
-				const RY0 = h/2 - padding;
-				console.log(x)
-				if (x < w / 2) {
+		case 'xor':
+			this.calcTopY = function (x) {
+				if (x < or_X1) {
 					return padding;
-				} else {
-					return h/2 - ellipse_y(x-w/2,RX0,RY0);
 				}
+				x -= or_X1;
+				const y = ellipse_y(x, or_MAGIC_0_W/2, or_MAGIC_0_H/2)
+				const res = or_MAGIC_0_H/2 + padding + 1 - y;
+				return res;
 			}
-			this.calcRightX = function(y) {
-				const RX0 = w/2 - padding;
-				const RY0 = h/2 - padding;
-				return w/2 + ellipse_x(h/2 - y,RX0,RY0);
+			this.calcRightX = function (y) {
+				if (y > or_Y1) {
+					y = h - y
+				}
+				y = or_MAGIC_0_H/2 - y;
+				const x = ellipse_x(y, or_MAGIC_0_W / 2, or_MAGIC_0_H / 2)
+				const res = or_X1 + x;
+				return res;
 			}
-			this.calcLeftX = function(y) {
-				const RX0 = w/2 - padding;
-				const RY0 = h/2 - padding;
-				return w/2 + ellipse_x(h/2 - y,RX0,RY0);
+			this.calcLeftX = function (y) {
+				y = h/2 -y;
+				const x = ellipse_x(y, or_MAGIC_1_W / 2, or_MAGIC_1_H / 2);
+				const res = x - (or_MAGIC_1_OFFSET_X - or_MAGIC_1_W/2) + padding;
+				return res;
 			}
-			this.calcBottomY = function(x) { return h - this.calcTopY(x) }
+			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
 			break;
 		case 'port':
 		case 'sequential':
@@ -367,89 +443,49 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 			c.end();
 			c.stroke()
 			break;
+		case 'buffer':
+			c.begin();
+			c.moveTo(padding, padding);
+			c.lineTo(w - padding,h/2);
+			c.lineTo(padding, h-padding);
+			c.close();
+			c.fillAndStroke();
+			break;
 		case 'and':
-				// proportions from
-				// drawio/src/main/webapp/stencils/electrical/logic_gates.xml 
-				//
-				//    X0  X1 
-				// Y0  A--B
-				//     |   )
-				// Y1  E--D
-				const and_X0 = padding;
-				const and_X1 = w/2;
-				const and_Y0 = padding;
-				const and_Y1 = h - padding;
-				const and_RX0 = w/2 - padding;
-				const and_RY0 = h/2 - padding;
-				c.begin();
-				c.moveTo(and_X0, and_Y0);
-				c.lineTo(and_X1, and_Y0);
-				c.arcTo(and_RX0, and_RY0, 0, 0, 1, and_X1, and_Y1 );
-				c.lineTo(and_X0, and_Y1);
-				c.close();
-				c.fillAndStroke();
-				break;
+			c.begin();
+			c.moveTo(and_X0, and_Y0);
+			c.lineTo(and_X1, and_Y0);
+			c.arcTo(and_RX0, and_RY0, 0, 0, 1, and_X1, and_Y1);
+			c.lineTo(and_X0, and_Y1);
+			c.close();
+			c.fillAndStroke();
+			break;
 		case 'or':
-				// proportions from
-				// drawio/src/main/webapp/stencils/electrical/logic_gates.xml 
-				//
-				//    X0  X1 X2 
-				// Y0  A--B.
-				// Y1   )   C
-				// Y2  E--D'
-				const or_X0 = padding;
-				const or_X1 = (40-15)/65 * w;
-				const or_X2 = w-padding;
-				const or_Y0 = padding;
-				const or_Y1 = h/2;
-				const or_Y2 = h-padding;
-				const or_RX0 = 45/65*w - padding;
-				const or_RY0 = 50/60*h - padding;
-				const or_RX1 = 60/65*w - padding;
-				const or_RY1 = 60/60*h - padding;
-				c.begin();
-				c.moveTo(or_X0, or_Y0);
-				c.lineTo(or_X1, or_Y0);
-				c.arcTo(or_RX0, or_RY0, 0, 0, 1, or_X2, or_Y1 );
-				c.arcTo(or_RX0, or_RY0, 0, 0, 1, or_X1, or_Y2 );
-				c.lineTo(or_X1, or_Y2);
-				c.arcTo(or_RX1,or_RY1, 0, 0, 0, or_X0, or_Y0 );
-				c.close();
-				c.fillAndStroke();
-				break;
+			c.begin();
+			c.moveTo(or_X0, or_Y0);
+			c.lineTo(or_X1, or_Y0);
+			c.arcTo(or_RX0, or_RY0, 0, 0, 1, or_X2, or_Y1);
+			c.arcTo(or_RX0, or_RY0, 0, 0, 1, or_X1, or_Y2);
+			c.lineTo(or_X0, or_Y2);
+			c.arcTo(or_RX1, or_RY1, 0, 0, 0, or_X0, or_Y0);
+			c.close();
+			c.fillAndStroke();
+			break;
 		case 'xor':
-				// proportions from
-				// drawio/src/main/webapp/stencils/electrical/logic_gates.xml 
-				//
-				//    X0 X1 X2 X3 
-				// Y0  F A--B.
-				// Y1   ) )   C
-				// Y2  G E--D'
-				const xor_X0 = (10-15)/65*w + padding
-				const xor_X1 = padding;
-				const xor_X2 = (40-15)/65 * w;
-				const xor_X3 = w-padding;
-				const xor_Y0 = padding;
-				const xor_Y1 = h/2;
-				const xor_Y2 = h-padding;
-				const xor_RX0 = 45/65*w - padding;
-				const xor_RY0 = 50/60*h - padding;
-				const xor_RX1 = 60/65*w - padding;
-				const xor_RY1 = 60/60*h - padding;
-				c.begin();
-				c.moveTo(xor_X1, xor_Y0);
-				c.lineTo(xor_X2, xor_Y0);
-				c.arcTo(xor_RX0, xor_RY0, 0, 0, 1, xor_X3, xor_Y1 );
-				c.arcTo(xor_RX0, xor_RY0, 0, 0, 1, xor_X2, xor_Y2 );
-				c.lineTo(xor_X1, xor_Y2);
-				c.arcTo(xor_RX1,xor_RY1, 0, 0, 0, xor_X1, xor_Y0 );
-				c.close();
-				c.fillAndStroke();
-				c.begin();
-				c.moveTo(xor_X0,xor_Y2);
-				c.arcTo(xor_RX1,xor_RY1, 0, 0, 0, xor_X0, xor_Y0 );
-				c.stroke();
-				break;
+			c.begin();
+			c.moveTo(xor_X1, xor_Y0);
+			c.lineTo(xor_X2, xor_Y0);
+			c.arcTo(xor_RX0, xor_RY0, 0, 0, 1, xor_X3, xor_Y1);
+			c.arcTo(xor_RX0, xor_RY0, 0, 0, 1, xor_X2, xor_Y2);
+			c.lineTo(xor_X1, xor_Y2);
+			c.arcTo(xor_RX1, xor_RY1, 0, 0, 0, xor_X1, xor_Y0);
+			c.close();
+			c.fillAndStroke();
+			c.begin();
+			c.moveTo(xor_X0, xor_Y2);
+			c.arcTo(xor_RX1, xor_RY1, 0, 0, 0, xor_X0, xor_Y0);
+			c.stroke();
+			break;
 		case 'port':
 			break;
 		case 'sequential':
@@ -620,7 +656,7 @@ function drawPin(pin, x, y, rot, anchor, labelRot, padding, external, size, draw
 		c.close();
 		c.stroke();
 	}
-	
+
 	c.setFontFamily(fontFamily);
 	c.setFontSize(fontSize);
 	// debugger;
@@ -636,9 +672,9 @@ function drawPin(pin, x, y, rot, anchor, labelRot, padding, external, size, draw
 	c.rotate(labelRot, 0, 0, labelX, 0);
 	c.text(labelX - labelAnchorX, labelY, labelSize.width, 0, pin.name, anchor, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 	c.rotate(-labelRot, 0, 0, labelX, 0);
-	
+
 	c.rotate(-rot, 0, 0, 0, 0);
-	c.translate(-x,-y);
+	c.translate(-x, -y);
 }
 
 function symbolRTLShiftReg(c, x, y, size) {

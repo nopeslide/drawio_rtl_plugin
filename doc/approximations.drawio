@@ -1,0 +1,19 @@
+<mxfile host="65bd71144e">
+    <diagram id="hQ-Cs7wQ3TDOvp4tmai6" name="Page-1">
+        <mxGraphModel dx="413" dy="143" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="1600" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="Entity" style="shadow=0;dashed=0;align=center;html=1;strokeWidth=1;shape=mxgraph.rtl.abstract.entity;container=1;collapsible=0;kind=or;drawPins=1;left=4;right=4;bottom=4;top=5;externalPins=1;leftArr=,,,;" parent="1" vertex="1">
+                    <mxGeometry x="97" y="69" width="100" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="or_MAGIC_0" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#FF3333;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="67" y="69" width="137" height="176" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="or_MAGIC_1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#FF3333;verticalAlign=bottom;labelPosition=center;verticalLabelPosition=top;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="30" y="50" width="79" height="138" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
