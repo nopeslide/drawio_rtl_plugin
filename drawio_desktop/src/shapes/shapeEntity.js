@@ -33,7 +33,9 @@ mxShapeRTLEntity.prototype.customProperties = [
 			{ val: 'demux', dispName: 'Demux' },
 			{ val: 'crossbar', dispName: 'Crossbar' },
 			{ val: 'port', dispName: 'Port' },
-			{ val: 'and', dispName: 'And' }
+			{ val: 'and', dispName: 'AND' },
+			{ val: 'or', dispName: 'OR' },
+			{ val: 'xor', dispName: 'XOR' }
 		]
 	},
 	{
@@ -344,14 +346,92 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 			c.stroke()
 			break;
 		case 'and':
-			c.begin();
-			c.moveTo(padding, padding);
-			c.lineTo(w / 2, padding);
-			c.curveTo(w - padding,padding, w-padding,h-padding, w/2,h-padding );
-			c.lineTo(padding, h-padding);
-			c.close();
-			c.fillAndStroke();
-			break;
+			{
+				// proportions from
+				// drawio/src/main/webapp/stencils/electrical/logic_gates.xml 
+				//
+				//    X0  X1 
+				// Y0  A--B
+				//     |   )
+				// Y1  E--D
+				const X0 = padding;
+				const X1 = w/2;
+				const Y0 = padding;
+				const Y1 = h - padding;
+				const RX0 = w/2 - padding;
+				const RY0 = h/2 - padding;
+				c.begin();
+				c.moveTo(X0, Y0);
+				c.lineTo(X1, Y0);
+				c.arcTo(RX0, RY0, 0, 0, 1, X1, Y1 );
+				c.lineTo(X0, Y1);
+				c.close();
+				c.fillAndStroke();
+				break;
+			}
+		case 'or': {
+				// proportions from
+				// drawio/src/main/webapp/stencils/electrical/logic_gates.xml 
+				//
+				//    X0  X1 X2 
+				// Y0  A--B.
+				// Y1   )   C
+				// Y2  E--D'
+				const X0 = padding;
+				const X1 = (40-15)/65 * w;
+				const X2 = w-padding;
+				const Y0 = padding;
+				const Y1 = h/2;
+				const Y2 = h-padding;
+				const RX0 = 45/65*w - padding;
+				const RY0 = 50/60*h - padding;
+				const RX1 = 60/65*w - padding;
+				const RY1 = 60/60*h - padding;
+				c.begin();
+				c.moveTo(X0, Y0);
+				c.lineTo(X1, Y0);
+				c.arcTo(RX0, RY0, 0, 0, 1, X2, Y1 );
+				c.arcTo(RX0, RY0, 0, 0, 1, X1, Y2 );
+				c.lineTo(X1, Y2);
+				c.arcTo(RX1,RY1, 0, 0, 0, X0, Y0 );
+				c.close();
+				c.fillAndStroke();
+				break;
+			}
+		case 'xor': {
+				// proportions from
+				// drawio/src/main/webapp/stencils/electrical/logic_gates.xml 
+				//
+				//    X0 X1 X2 X3 
+				// Y0  F A--B.
+				// Y1   ) )   C
+				// Y2  G E--D'
+				const X0 = (10-15)/65*w + padding
+				const X1 = padding;
+				const X2 = (40-15)/65 * w;
+				const X3 = w-padding;
+				const Y0 = padding;
+				const Y1 = h/2;
+				const Y2 = h-padding;
+				const RX0 = 45/65*w - padding;
+				const RY0 = 50/60*h - padding;
+				const RX1 = 60/65*w - padding;
+				const RY1 = 60/60*h - padding;
+				c.begin();
+				c.moveTo(X1, Y0);
+				c.lineTo(X2, Y0);
+				c.arcTo(RX0, RY0, 0, 0, 1, X3, Y1 );
+				c.arcTo(RX0, RY0, 0, 0, 1, X2, Y2 );
+				c.lineTo(X1, Y2);
+				c.arcTo(RX1,RY1, 0, 0, 0, X1, Y0 );
+				c.close();
+				c.fillAndStroke();
+				c.begin();
+				c.moveTo(X0,Y2);
+				c.arcTo(RX1,RY1, 0, 0, 0, X0, Y0 );
+				c.stroke();
+				break;
+		}
 		case 'port':
 			break;
 		case 'sequential':
