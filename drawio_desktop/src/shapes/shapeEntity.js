@@ -1,4 +1,5 @@
 import calculateSize from "calculate-size";
+import {Bezier} from "bezier-js";
 
 //**********************************************************************************************************************************************************
 //Entity
@@ -31,7 +32,8 @@ mxShapeRTLEntity.prototype.customProperties = [
 			{ val: 'mux', dispName: 'Mux' },
 			{ val: 'demux', dispName: 'Demux' },
 			{ val: 'crossbar', dispName: 'Crossbar' },
-			{ val: 'port', dispName: 'Port' }
+			{ val: 'port', dispName: 'Port' },
+			{ val: 'and', dispName: 'And' }
 		]
 	},
 	{
@@ -275,6 +277,27 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 			}
 			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
 			break;
+		case 'and':
+			this.calcTopY = function(x) {
+				if (x < w / 2) {
+					return padding;
+				} else {
+					const b = new Bezier(w/2,padding, w-padding,padding, w-padding,h-padding, w/2,h-padding);
+					const intersects = b.intersects({ p1: {x:x, y:0}, p2: {x:x,y:h} });
+					const points = intersects.map(t => b.get(t));
+					const min = Math.round(Math.min(...points.map(p=>p.y)));
+					return min;
+				}
+			}
+			this.calcRightX = function(y) {
+					const b = new Bezier(w/2,padding, w-padding,padding, w-padding,h-padding, w/2,h-padding);
+					const intersects = b.intersects({ p1: {x:0, y:y}, p2: {x:w,y:y} });
+					const points = intersects.map(t => b.get(t));
+					const max = Math.round(Math.max(...points.map(p=>p.x)));
+					return max;
+			}
+			this.calcBottom = function(x) { return h - this.calcTopY(x) }
+			break;
 		case 'port':
 		case 'sequential':
 		default:
@@ -319,6 +342,15 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 			c.lineTo(w / 2, this.calcBottomY(w / 2));
 			c.end();
 			c.stroke()
+			break;
+		case 'and':
+			c.begin();
+			c.moveTo(padding, padding);
+			c.lineTo(w / 2, padding);
+			c.curveTo(w - padding,padding, w-padding,h-padding, w/2,h-padding );
+			c.lineTo(padding, h-padding);
+			c.close();
+			c.fillAndStroke();
 			break;
 		case 'port':
 			break;
