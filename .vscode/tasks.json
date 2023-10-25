@@ -1,0 +1,26 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "build",
+			"path": "vscode",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "npm: build - vscode",
+			"detail": "npm run build",
+			"dependsOn": [
+				"npm: build - drawio_desktop"
+			]
+		},
+		{
+			"type": "npm",
+			"script": "build",
+			"path": "drawio_desktop",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "npm: build - drawio_desktop",
+			"detail": "npm run build"
+		}
+	]
+}

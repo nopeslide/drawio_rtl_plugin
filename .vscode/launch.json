@@ -10,7 +10,7 @@
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
 			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}",
+				"--extensionDevelopmentPath=${workspaceFolder}/vscode/",
 				"${workspaceFolder}/test/test.drawio"
 			],
 			"outFiles": [
@@ -18,7 +18,7 @@
 			],
 			"sourceMaps": true,
 			"trace": true,
-			// "preLaunchTask": "npm: watch"
+			"preLaunchTask": "npm: build - vscode"
 		}
 	]
 }
