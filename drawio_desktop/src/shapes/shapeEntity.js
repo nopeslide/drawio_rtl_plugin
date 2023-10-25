@@ -31,7 +31,10 @@ mxShapeRTLEntity.prototype.customProperties = [
 			{ val: 'mux', dispName: 'Mux' },
 			{ val: 'demux', dispName: 'Demux' },
 			{ val: 'crossbar', dispName: 'Crossbar' },
-			{ val: 'port', dispName: 'Port' }
+			{ val: 'port', dispName: 'Port' },
+			{ val: 'input', dispName: 'Input'},
+			{ val: 'output', dispName: 'Output'},
+			{ val: 'inout', dispName: 'InOut'}
 		]
 	},
 	{
@@ -275,6 +278,66 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 			}
 			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
 			break;
+		case 'input':
+			this.calcTopY = function (x) {
+				if (x < w - h/2) {
+					return padding;
+				} else {
+					return x - (w - h/2 - padding);
+				}
+			}
+			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
+			this.calcRightX = function (y) { 
+				if (y < h/2) {
+					return (y - padding) + w - h/2;
+				} else {
+					return (h - y - padding) + w - h / 2;
+				}
+			}
+			break;
+		case 'output':
+			this.calcTopY = function (x) {
+				if (x > h/2) {
+					return padding;
+				} else {
+					return h/2 -(x - padding);
+				}
+			}
+			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
+			this.calcLeftX = function (y) { 
+				if (y < h/2) {
+					return h/2 - y + padding;
+				} else {
+					return y - h/2 + padding
+				}
+			}
+			break;
+		case 'inout':
+			this.calcTopY = function (x) {
+				if (x < h/2) {
+					return h/2 -(x - padding);
+				} else if (x > w - h/2) {
+					return x - (w - h / 2 - padding);
+				} else {
+					return padding;
+				}
+			}
+			this.calcBottomY = function (x) { return h - this.calcTopY(x) }
+			this.calcLeftX = function (y) { 
+				if (y < h/2) {
+					return h/2 - y + padding;
+				} else {
+					return y - h/2 + padding
+				}
+			}
+			this.calcRightX = function (y) {
+				if (y < h / 2) {
+					return (y - padding) + w - h / 2;
+				} else {
+					return (h - y - padding) + w - h / 2;
+				}
+			}
+			break;
 		case 'port':
 		case 'sequential':
 		default:
@@ -321,6 +384,37 @@ mxShapeRTLEntity.prototype.paintVertexShape = function (c, x, y, w, h) {
 			c.stroke()
 			break;
 		case 'port':
+			break;
+		case 'input':
+			c.begin();
+			c.moveTo(padding, padding);
+			c.lineTo(w - h/2, padding);
+			c.lineTo(w - padding, h/2);
+			c.lineTo(w - h/2, h - padding);
+			c.lineTo(padding, h - padding);
+			c.close();
+			c.fillAndStroke();
+			break;
+		case 'output':
+			c.begin();
+			c.moveTo(padding, h/2);
+			c.lineTo(h/2 , padding);
+			c.lineTo(w - padding, padding);
+			c.lineTo(w - padding, h - padding);
+			c.lineTo(h/2, h - padding);
+			c.close();
+			c.fillAndStroke();
+			break;
+		case 'inout':
+			c.begin();
+			c.moveTo(padding, h/2);
+			c.lineTo(h/2 , padding);
+			c.lineTo(w - h / 2, padding);
+			c.lineTo(w - padding, h / 2);
+			c.lineTo(w - h / 2, h - padding);
+			c.lineTo(h/2, h - padding);
+			c.close();
+			c.fillAndStroke();
 			break;
 		case 'sequential':
 		default:
